@@ -4,6 +4,7 @@ set "UNCOMMITTED_COUNT=0"
 echo ===========================================
 echo    [UPDATE] Git Pull with Token - Update Repository
 echo ===========================================
+echo Script Version: 2.0 - Force Pull with Safety Checks
 echo.
 
 REM ===== GitHub Personal Access Token Configuration =====

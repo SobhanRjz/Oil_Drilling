@@ -9,6 +9,7 @@
   <!-- Global styles + overview shared components -->
   <link rel="stylesheet" href="/static/css/style.css"/>
   <link rel="stylesheet" href="/static/css/overview.css"/>
+  <link rel="stylesheet" href="/static/css/stepper.css"/>
   <!-- Page specific -->
   <link rel="stylesheet" href="/static/css/export.css"/>
 </head>
@@ -21,16 +22,41 @@
     </button>
   </div>
 
-  <!-- Stepper -->
-  <div class="stepper">
-    <div class="step done"><div class="bubble">1</div><div class="label">Overview</div></div>
-    <div class="sep"></div>
-    <div class="step done"><div class="bubble">2</div><div class="label">Cleansing</div></div>
-    <div class="sep"></div>
-    <div class="step done"><div class="bubble">3</div><div class="label">Anomalies</div></div>
-    <div class="sep"></div>
-    <div class="step active"><div class="bubble">4</div><div class="label">Export</div></div>
-  </div>
+  <!-- Modern Stepper -->
+  <nav class="modern-stepper" data-progress="100" role="navigation" aria-label="Data quality process steps">
+    <div class="step-item completed" role="listitem">
+      <div class="step-bubble" aria-label="Step 1: Overview - Completed">
+        <svg class="step-icon" viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z"/>
+        </svg>
+      </div>
+      <div class="step-label">Overview</div>
+    </div>
+    <div class="step-item completed" role="listitem">
+      <div class="step-bubble" aria-label="Step 2: Cleansing - Completed">
+        <svg class="step-icon" viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M14.73 13.31c1.13-1.55 1.63-3.58.98-5.74-1.22-.01-2.43.49-3.34 1.39-.57.57-.93 1.32-.93 2.13 0 .21.04.42.11.62-.4.05-.8-.03-1.15-.21-.78-.4-1.35-1.09-1.61-1.89-.39-1.21-.04-2.52.95-3.44 1.05-1.04 2.55-1.42 3.94-1.02.54.16 1.05.43 1.47.82.37.33.67.75.88 1.22.59-.16 1.21-.13 1.78.12 1.31.57 2.16 1.93 2.06 3.36-.1 1.45-.91 2.71-2.12 3.36-.61.33-1.29.49-1.98.46z"/>
+        </svg>
+      </div>
+      <div class="step-label">Cleansing</div>
+    </div>
+    <div class="step-item completed" role="listitem">
+      <div class="step-bubble" aria-label="Step 3: Anomalies - Completed">
+        <svg class="step-icon" viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+        </svg>
+      </div>
+      <div class="step-label">Anomalies</div>
+    </div>
+    <div class="step-item active" role="listitem" aria-current="step">
+      <div class="step-bubble" aria-label="Step 4: Export - Current step">
+        <svg class="step-icon" viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V8l-6-6zm4 18H6V4h7v5h5v11z"/>
+        </svg>
+      </div>
+      <div class="step-label">Export</div>
+    </div>
+  </nav>
 
   <main>
     <!-- Title -->
@@ -59,6 +85,7 @@
 
   <footer><small class="muted">© 2025 Drill DQ</small></footer>
 
+  <script src="/static/js/stepper.js"></script>
   <script src="/static/js/export-page/export.js"></script>
 </body>
 </html>

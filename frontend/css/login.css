@@ -15,19 +15,28 @@
   .brand-bullets{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:24px;padding-left:18px}
   .brand-bullets li{color:#c8d6e5}
   .auth{display:grid;place-items:center;padding:clamp(24px,4vw,48px)}
-  .card{width:min(520px,92%);background:var(--panel);border-radius:var(--radius);box-shadow:var(--shadow);padding:clamp(20px,3vw,36px)}
-  .card h2{margin:0 0 12px 0}
-  .field{display:grid;gap:8px;margin:14px 0}
-  .field span{color:var(--muted);font-size:.95rem}
-  .field input{width:100%;border:1px solid #263141;background:#0e1420;color:var(--text);border-radius:12px;padding:14px 14px;outline:none;transition:border .2s}
-  .field input:focus{border-color:var(--brand)}
-  .password-wrap{display:grid;grid-template-columns:1fr auto;align-items:center}
-  .password-wrap .ghost{margin-left:8px;border:1px solid #263141;background:#0e1420;color:#9fb2c7;border-radius:10px;padding:10px 12px;cursor:pointer}
-  .primary{width:100%;margin-top:10px;padding:14px 18px;border:none;border-radius:12px;cursor:pointer;background:linear-gradient(135deg,var(--brand),#6bc1ff);color:#06121c;font-weight:700}
-  .primary:hover{filter:brightness(1.05)}
+  .card{width:min(520px,92%);background:var(--panel);border-radius:var(--radius);box-shadow:var(--shadow);padding:clamp(24px,3vw,40px);border:1px solid rgba(57,166,255,.05)}
+  .card h2{margin:0 0 20px 0;font-size:1.5rem;font-weight:600;color:var(--text)}
+  .field{position:relative;display:grid;gap:6px;margin:16px 0}
+  .field span{position:absolute;left:14px;top:18px;color:var(--muted);font-size:.875rem;pointer-events:none;transition:all .2s ease;z-index:1}
+  .field input{width:100%;border:1px solid #263141;background:#0e1420;color:var(--text);border-radius:12px;padding:20px 14px 8px 14px;outline:none;transition:all .3s cubic-bezier(.4,0,.2,1);font-size:1rem}
+  .field input:focus{border-color:var(--brand);box-shadow:0 0 0 3px rgba(57,166,255,.1);background:#0f1622}
+  .field.has-content span{top:4px;font-size:.75rem;color:var(--brand);font-weight:500}
+  .password-wrap{position:relative;display:grid;grid-template-columns:1fr auto;gap:8px;align-items:center}
+  .password-wrap input{padding-right:50px}
+  .password-wrap .ghost{position:absolute;right:8px;top:50%;transform:translateY(-50%);border:1px solid #263141;background:#0e1420;color:#9fb2c7;border-radius:8px;padding:8px;cursor:pointer;transition:all .2s ease;z-index:2;width:32px;height:32px;display:flex;align-items:center;justify-content:center}
+  .password-wrap .ghost:hover{background:#1a2332;border-color:#39a6ff;color:#39a6ff}
+  .password-wrap .ghost:active{transform:translateY(-50%) scale(.95)}
+  .primary{width:100%;margin-top:16px;padding:14px 18px;border:none;border-radius:12px;cursor:pointer;background:linear-gradient(135deg,var(--brand),#6bc1ff);color:#06121c;font-weight:600;font-size:1rem;transition:all .2s ease;transform:translateY(0)}
+  .primary:hover{filter:brightness(1.05);transform:translateY(-1px);box-shadow:0 4px 12px rgba(57,166,255,.3)}
+  .primary:active{transform:translateY(0)}
   .fineprint{color:#8ea0b5;font-size:.9rem;margin-top:14px}
-  .flash{display:grid;gap:8px;margin-bottom:8px}
-  .flash .err{padding:10px 12px;border-radius:8px;background:rgba(255,107,107,.12);border:1px solid rgba(255,107,107,.35)}
+  .flash{display:grid;gap:8px;margin-bottom:16px}
+  .flash .err{padding:12px 14px;border-radius:10px;background:rgba(255,107,107,.15);border:1px solid rgba(255,107,107,.4);color:#ff9b9b;font-size:.9rem;animation:slideIn .3s ease}
+  .field.error input{border-color:#ff6b6b}
+  .field.error input:focus{box-shadow:0 0 0 3px rgba(255,107,107,.2)}
+  .field.error span{color:#ff9b9b}
+  @keyframes slideIn{from{opacity:0;transform:translateY(-10px)}to{opacity:1;transform:translateY(0)}}
   /* --- soften the right edge of the branding image --- */
   /* Right-edge fade on the branding image (no blur) */
   .brand { position: relative; overflow: hidden; }
@@ -202,10 +211,20 @@
   pointer-events: none;
   filter: saturate(.95);
 }
+.primary.is-loading .button-text{opacity:0}
 .primary.is-loading::after{
   content: "Signing in…";
   position: absolute; inset: 0;
   display: grid; place-items: center;
+  font-weight:600;
+}
+
+/* Password toggle icon */
+.password-wrap .ghost svg{
+  transition: opacity .2s ease;
+}
+.primary .button-text{
+  transition: opacity .2s ease;
 }
 
 /* Respect reduced motion */

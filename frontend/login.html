@@ -44,18 +44,25 @@
         <div id="flash" class="flash" hidden></div>
         <form id="login-form" novalidate>
           <label class="field">
+            <input type="email" name="email" autocomplete="username" required />
             <span>Email</span>
-            <input type="email" name="email" placeholder="you@example.com" autocomplete="username" required />
           </label>
           <label class="field">
-            <span>Password</span>
             <div class="password-wrap">
-              <input type="password" name="password" placeholder="••••••••" autocomplete="current-password" required minlength="6" />
-              <button class="ghost" type="button" id="togglePwd" aria-label="Show password">👁️</button>
+              <input type="password" name="password" autocomplete="current-password" required minlength="6" />
+              <button class="ghost" type="button" id="togglePwd" aria-label="Toggle password visibility">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                  <circle cx="12" cy="12" r="3"></circle>
+                </svg>
+              </button>
             </div>
+            <span>Password</span>
           </label>
-          <button class="primary" type="submit">Continue</button>
-          <p class="fineprint">Use <b>admin@example.com</b> / <b>admin123</b> for the demo.</p>
+          <button class="primary" type="submit">
+            <span class="button-text">Sign In</span>
+          </button>
+          <p class="fineprint">Demo credentials: <strong>admin@example.com</strong> / <strong>admin123</strong></p>
         </form>
       </div>
     </section>

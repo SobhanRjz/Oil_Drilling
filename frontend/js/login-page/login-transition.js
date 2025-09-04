@@ -8,15 +8,88 @@ document.addEventListener('DOMContentLoaded', () => {
     const btn  = form.querySelector('.primary');
     const emailI = form.querySelector('input[name="email"]');
     const pwdI   = form.querySelector('input[name="password"]');
-  
+    const togglePwd = document.getElementById('togglePwd');
+
+    // Handle floating labels and error states
+    [emailI, pwdI].forEach(input => {
+      if (input) {
+        const field = input.closest('.field');
+
+        // Function to update floating label state
+        const updateLabelState = () => {
+          const hasContent = input.value.trim() !== '';
+          const isFocused = document.activeElement === input;
+
+          if (hasContent || isFocused) {
+            field?.classList.add('has-content');
+          } else {
+            field?.classList.remove('has-content');
+          }
+        };
+
+        // Force initial state to be without content
+        field?.classList.remove('has-content');
+
+        // Clear error states on input
+        input.addEventListener('input', () => {
+          field?.classList.remove('error');
+          updateLabelState();
+        });
+
+        // Handle focus/blur for floating labels
+        input.addEventListener('focus', updateLabelState);
+        input.addEventListener('blur', updateLabelState);
+
+        // Initialize label state with a small delay to ensure DOM is ready
+        setTimeout(() => {
+          updateLabelState();
+        }, 10);
+      }
+    });
+
+    // Password toggle functionality
+    if (togglePwd) {
+      togglePwd.addEventListener('click', (e) => {
+        e.preventDefault();
+        const type = pwdI.type === 'password' ? 'text' : 'password';
+        pwdI.type = type;
+        togglePwd.setAttribute('aria-label', type === 'text' ? 'Hide password' : 'Show password');
+
+        const svg = togglePwd.querySelector('svg');
+        if (svg) {
+          const path = svg.querySelector('path');
+          if (type === 'text') {
+            path.setAttribute('d', 'M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z M2 4.707A8.001 8.001 0 0115.586 12');
+            svg.innerHTML += '<line x1="2" y1="2" x2="22" y2="22"></line>';
+          } else {
+            path.setAttribute('d', 'M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z');
+            const line = svg.querySelector('line');
+            if (line) line.remove();
+          }
+        }
+      });
+    }
+
     form.addEventListener('submit', async (e) => {
       e.preventDefault();
   
+      // Clear previous error states
+      emailI?.closest('.field')?.classList.remove('error');
+      pwdI?.closest('.field')?.classList.remove('error');
+
       // quick validation (keep or remove if you do server-side only)
       const email = (emailI?.value || '').trim();
       const pwd   = (pwdI?.value || '');
-      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return toast('Please enter a valid email.');
-      if (pwd.length < 6) return toast('Password must be at least 6 characters.');
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+        emailI?.closest('.field')?.classList.add('error');
+        emailI?.focus();
+        return toast('Please enter a valid email.');
+      }
+      if (pwd.length < 6) {
+        pwdI?.closest('.field')?.classList.add('error');
+        pwdI?.focus();
+        return toast('Password must be at least 6 characters.');
+      }
   
       try {
         btn?.classList.add('is-loading');

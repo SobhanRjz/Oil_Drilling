@@ -39,7 +39,7 @@ echo [INFO] Starting force pull...
 echo.
 
 echo [STEP 1] Fetching from remote...
-git fetch https://oauth2:!TOKEN!@github.com/!REPO_OWNER!/!REPO_NAME!.git
+git fetch https://oauth2:!TOKEN!@github.com/!REPO_OWNER!/!REPO_NAME!.git !BRANCH!:refs/remotes/temp/!BRANCH!
 if errorlevel 1 (
     echo [ERROR] Fetch failed
     pause
@@ -47,7 +47,7 @@ if errorlevel 1 (
 )
 
 echo [STEP 2] Resetting to remote state...
-git reset --hard origin/!BRANCH!
+git reset --hard temp/!BRANCH!
 if errorlevel 1 (
     echo [ERROR] Reset failed
     pause

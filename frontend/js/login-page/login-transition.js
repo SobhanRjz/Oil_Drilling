@@ -19,8 +19,10 @@ document.addEventListener('DOMContentLoaded', () => {
         const updateLabelState = () => {
           const hasContent = input.value.trim() !== '';
           const isFocused = document.activeElement === input;
+          const isFilled = input.value.length > 0;
 
-          if (hasContent || isFocused) {
+          // Add has-content class if there's content, focused, or the field was previously filled
+          if (hasContent || isFocused || isFilled) {
             field?.classList.add('has-content');
           } else {
             field?.classList.remove('has-content');
@@ -44,6 +46,20 @@ document.addEventListener('DOMContentLoaded', () => {
         setTimeout(() => {
           updateLabelState();
         }, 10);
+
+        // Handle autofill scenarios (browsers may autofill after page load)
+        input.addEventListener('animationstart', (e) => {
+          if (e.animationName === 'onAutoFillStart') {
+            updateLabelState();
+          }
+        });
+
+        // Also check periodically for autofill (fallback)
+        setTimeout(() => {
+          if (input.value && !field?.classList.contains('has-content')) {
+            updateLabelState();
+          }
+        }, 1000);
       }
     });
 

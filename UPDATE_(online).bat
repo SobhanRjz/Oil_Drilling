@@ -40,15 +40,7 @@ if !UNCOMMITTED_COUNT! gtr 0 (
     git status --porcelain
 
     echo.
-    echo [QUESTION] Continue with force pull? (Y/N)
-    set /p CONFIRM="Your choice: "
-
-    if /i not "!CONFIRM!"=="Y" (
-        echo [INFO] Force pull cancelled by user.
-        echo [TIP] Commit or stash your changes first.
-        pause
-        exit /b 1
-    )
+    echo [INFO] Proceeding with force pull (auto-confirmed)...
 )
 
 REM Force pull latest changes with token authentication

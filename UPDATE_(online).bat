@@ -14,41 +14,68 @@ set BRANCH=main
 
 echo Repository: %REPO_OWNER%/%REPO_NAME% (Private)
 echo Branch: %BRANCH%
-echo Pulling latest changes with token authentication...
+echo [WARNING] Force pulling latest changes (will overwrite local changes)...
 echo.
 
-REM Pull latest changes with token authentication
+REM Force pull latest changes with token authentication
+echo [INFO] Fetching latest changes from remote...
+git fetch https://oauth2:%TOKEN%@github.com/%REPO_OWNER%/%REPO_NAME%.git
+
+if errorlevel 1 (
+    echo [ERROR] Failed to fetch from remote
+    goto :error
+)
+
+echo [INFO] Force resetting local branch to match remote...
+git reset --hard origin/%BRANCH%
+
+if errorlevel 1 (
+    echo [ERROR] Failed to reset local branch
+    goto :error
+)
+
+echo [INFO] Pulling to ensure sync...
 git pull https://oauth2:%TOKEN%@github.com/%REPO_OWNER%/%REPO_NAME%.git %BRANCH%
 
 if errorlevel 1 (
-    echo.
-    echo ===========================================
-    echo    [ERROR] PULL FAILED!
-    echo ===========================================
-    echo.
-    echo [INFO] Possible causes:
-    echo 1. No internet connection
-    echo 2. Repository not initialized
-    echo 3. Merge conflicts
-    echo 4. Authentication issues
-    echo.
-    echo [FIX] Try these solutions:
-    echo 1. Check internet connection
-    echo 2. Run 'git status' to check repository state
-    echo 3. Resolve any merge conflicts
-    echo 4. Ensure you're in the correct directory
-    echo.
-    pause
-    exit /b 1
+    echo [ERROR] Failed to complete pull operation
+    goto :error
 ) else (
     echo.
     echo ===========================================
-    echo    [SUCCESS] PULL SUCCESSFUL!
+    echo    [SUCCESS] FORCE PULL COMPLETED!
     echo ===========================================
     echo.
-    echo Repository updated successfully.
+    echo [WARNING] Local changes have been overwritten
+    echo Repository updated successfully from remote.
     echo.
     pause
 )
 
+goto :end
+
+:error
+echo.
+echo ===========================================
+echo    [ERROR] FORCE PULL FAILED!
+echo ===========================================
+echo.
+echo [INFO] Possible causes:
+echo 1. No internet connection
+echo 2. Repository not initialized
+echo 3. Authentication issues
+echo 4. Permission denied on repository
+echo 5. Remote repository not found
+echo.
+echo [FIX] Try these solutions:
+echo 1. Check internet connection
+echo 2. Verify token has 'repo' permissions
+echo 3. Ensure repository exists and you have access
+echo 4. Check if you're in the correct directory
+echo 5. Run 'git status' to check repository state
+echo.
+pause
+exit /b 1
+
+:end
 exit /b 0

@@ -1,4 +1,6 @@
 @echo off
+setlocal enabledelayedexpansion
+set "UNCOMMITTED_COUNT=0"
 echo ===========================================
 echo    [UPDATE] Git Pull with Token - Update Repository
 echo ===========================================
@@ -16,6 +18,37 @@ echo Repository: %REPO_OWNER%/%REPO_NAME% (Private)
 echo Branch: %BRANCH%
 echo [WARNING] Force pulling latest changes (will overwrite local changes)...
 echo.
+
+REM Check for uncommitted changes
+echo [INFO] Checking for uncommitted changes...
+git status --porcelain >nul 2>&1
+if errorlevel 1 (
+    echo [ERROR] Not a git repository or git not available
+    goto :error
+)
+
+REM Count uncommitted changes
+for /f %%i in ('git status --porcelain 2^>nul ^| find /c /v ""') do set UNCOMMITTED_COUNT=%%i
+
+if !UNCOMMITTED_COUNT! gtr 0 (
+    echo [WARNING] Found !UNCOMMITTED_COUNT! uncommitted changes
+    echo [INFO] These will be permanently lost!
+
+    REM Show what files have changes
+    echo [INFO] Changed files:
+    git status --porcelain
+
+    echo.
+    echo [QUESTION] Continue with force pull? (Y/N)
+    set /p CONFIRM="Your choice: "
+
+    if /i not "!CONFIRM!"=="Y" (
+        echo [INFO] Force pull cancelled by user.
+        echo [TIP] Commit or stash your changes first.
+        pause
+        exit /b 1
+    )
+)
 
 REM Force pull latest changes with token authentication
 echo [INFO] Fetching latest changes from remote...
@@ -46,7 +79,9 @@ if errorlevel 1 (
     echo    [SUCCESS] FORCE PULL COMPLETED!
     echo ===========================================
     echo.
-    echo [WARNING] Local changes have been overwritten
+    if !UNCOMMITTED_COUNT! gtr 0 (
+        echo [WARNING] !UNCOMMITTED_COUNT! local changes have been permanently overwritten
+    )
     echo Repository updated successfully from remote.
     echo.
     pause

@@ -161,3 +161,13 @@ cython_debug/
 *.zip
 data/*
 !data/sample.csv
+
+# GitHub Token Configuration (NEVER COMMIT!)
+config.bat
+*.token
+github_token.txt
+
+# Keep setup scripts but ignore config
+!setup_github_token.bat
+!pull_repo_secure.bat
+!GITHUB_SETUP_README.md

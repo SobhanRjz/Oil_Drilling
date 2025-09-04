@@ -1,6 +1,6 @@
 @echo off
 echo ===========================================
-echo    Drill DQ Data Quality Platform
+echo    [START] Drill DQ Data Quality Platform
 echo ===========================================
 echo.
 
@@ -33,15 +33,6 @@ if errorlevel 1 (
     exit /b 1
 )
 
-REM Install/update requirements
-echo Installing/updating packages...
-pip install -r requirements.txt
-if errorlevel 1 (
-    echo ERROR: Failed to install packages
-    pause
-    exit /b 1
-)
-
 echo.
 echo ===========================================
 echo        Starting Drill DQ Server
@@ -53,9 +44,31 @@ echo.
 echo Press Ctrl+C to stop the server
 echo.
 
-REM Start the server
-uvicorn backend.main:app --host 127.0.0.1 --port 8000 --reload
+REM Start the server in background
+echo Starting server in background...
+start /B uvicorn backend.main:app --host 127.0.0.1 --port 8000 --reload
 
-REM If server stops, deactivate venv and exit
+REM Wait a moment for server to start
+echo Waiting for server to start...
+timeout /t 3 /nobreak >nul
+
+REM Open browser
+echo [BROWSER] Opening browser...
+start http://127.0.0.1:8000/login
+
+echo.
+echo [OK] Server started successfully!
+echo [INFO] Browser should open automatically
+echo.
+echo [TIP] If browser doesn't open, manually visit:
+echo    http://127.0.0.1:8000/login
+echo.
+echo [STOP] Press Ctrl+C in this window to stop the server
+echo.
+
+REM Wait for server process
+pause >nul
+
+REM Cleanup
 call .venv\Scripts\deactivate.bat
-pause
+goto :end

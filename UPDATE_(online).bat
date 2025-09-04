@@ -4,7 +4,7 @@ set "UNCOMMITTED_COUNT=0"
 echo ===========================================
 echo    [UPDATE] Git Pull with Token - Update Repository
 echo ===========================================
-echo Script Version: 2.1 - Auto Force Pull (No Confirmation)
+echo Script Version: 2.0 - Force Pull with Safety Checks
 echo.
 
 REM ===== GitHub Personal Access Token Configuration =====
@@ -17,7 +17,7 @@ set BRANCH=main
 
 echo Repository: %REPO_OWNER%/%REPO_NAME% (Private)
 echo Branch: %BRANCH%
-echo [WARNING] Auto force pulling latest changes (will overwrite local changes)...
+echo [WARNING] Force pulling latest changes (will overwrite local changes)...
 echo.
 
 REM Check for uncommitted changes
@@ -29,6 +29,7 @@ if errorlevel 1 (
 )
 
 REM Count uncommitted changes
+set UNCOMMITTED_COUNT=0
 for /f %%i in ('git status --porcelain 2^>nul ^| find /c /v ""') do set UNCOMMITTED_COUNT=%%i
 
 if !UNCOMMITTED_COUNT! gtr 0 (

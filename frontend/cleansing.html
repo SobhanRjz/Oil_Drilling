@@ -1,0 +1,194 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Drill DQ · Cleansing</title>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <!-- Global styles + overview shared components -->
+  <link rel="stylesheet" href="/static/css/style.css"/>
+  <link rel="stylesheet" href="/static/css/overview.css"/>
+  <!-- Page specific -->
+  <link rel="stylesheet" href="/static/css/cleansing.css"/>
+</head>
+<body>
+  <!-- Back button -->
+  <div class="back-button-container">
+    <button class="back-btn" onclick="window.location.href='/'">
+      <span class="back-icon">←</span>
+      <span class="back-text">Back to Upload</span>
+    </button>
+  </div>
+
+  <!-- Stepper -->
+  <div class="stepper">
+    <div class="step done"><div class="bubble">1</div><div class="label">Overview</div></div>
+    <div class="sep"></div>
+    <div class="step active"><div class="bubble">2</div><div class="label">Cleansing</div></div>
+    <div class="sep"></div>
+    <div class="step"><div class="bubble">3</div><div class="label">Anomalies</div></div>
+    <div class="sep"></div>
+    <div class="step"><div class="bubble">4</div><div class="label">Export</div></div>
+  </div>
+
+  <main>
+    <!-- Title -->
+    <section class="main-title revealed">
+      <h2>Data Cleansing</h2>
+      <p>Select fixes, preview the impact, then apply.</p>
+    </section>
+
+    <!-- Issue Summary -->
+    <section class="issues-section revealed">
+      <div class="section-header">
+        <h3>What needs attention</h3>
+        <p>Quick snapshot of duplicates and missing values</p>
+      </div>
+      <div class="issues-grid">
+        <div class="issue-card" id="iss-rows">
+          <div class="issue-title">Rows</div>
+          <div class="issue-value"><span id="rowsCount">0</span></div>
+          <div class="issue-sub">Total rows detected</div>
+        </div>
+        <div class="issue-card" id="iss-dups">
+          <div class="issue-title">Duplicates</div>
+          <div class="issue-value danger"><span id="dupCount">0</span></div>
+          <div class="issue-sub">Potential duplicate rows</div>
+        </div>
+        <div class="issue-card" id="iss-missing">
+          <div class="issue-title">Missingness</div>
+          <div class="issue-value warning"><span id="missingPct">0</span>%</div>
+          <div class="issue-sub"><span id="colsWithMissing">0</span> columns have missing data</div>
+        </div>
+        <div class="issue-card" id="iss-ready">
+          <div class="issue-title">Completeness</div>
+          <div class="issue-value success"><span id="completePct">0</span>%</div>
+          <div class="issue-sub">Overall filled cell ratio</div>
+        </div>
+      </div>
+
+      <div class="suggestions" id="suggestions"></div>
+    </section>
+
+    <!-- Actions -->
+    <section class="actions-section revealed">
+      <div class="section-header">
+        <h3>Choose cleansing actions</h3>
+        <p>These are safe defaults. You can tweak and preview before applying.</p>
+      </div>
+
+      <div class="action-grid">
+
+        <!-- Deduplicate -->
+        <div class="action-card" data-action="deduplicate">
+          <div class="action-head">
+            <label class="switch">
+              <input type="checkbox" id="toggleDedup" checked>
+              <span class="slider"></span>
+            </label>
+            <h4>Remove duplicates</h4>
+            <p>Drop duplicate rows. Default: entire row match.</p>
+          </div>
+          <div class="action-body">
+            <div class="form-row">
+              <label for="dedupSubset">Subset (optional)</label>
+              <select id="dedupSubset" multiple aria-label="Deduplicate subset columns"></select>
+            </div>
+            <div class="hint">Tip: choose ID-like columns for faster, precise duplicate removal.</div>
+          </div>
+        </div>
+
+        <!-- Standardize -->
+        <div class="action-card" data-action="standardize">
+          <div class="action-head">
+            <label class="switch">
+              <input type="checkbox" id="toggleStandardize" checked>
+              <span class="slider"></span>
+            </label>
+            <h4>Standardize aliases & units</h4>
+            <p>Map column aliases and convert units (e.g., <code>pressure_psi→pressure_bar</code>).</p>
+          </div>
+          <div class="action-body">
+            <ul class="tiny-list" id="stdPreview">
+              <!-- filled from server: alias targets & unit targets -->
+            </ul>
+          </div>
+        </div>
+
+        <!-- Impute -->
+        <div class="action-card" data-action="impute">
+          <div class="action-head">
+            <label class="switch">
+              <input type="checkbox" id="toggleImpute" checked>
+              <span class="slider"></span>
+            </label>
+            <h4>Fill missing values</h4>
+            <p>Numeric → median · Categorical → mode</p>
+          </div>
+          <div class="action-body">
+            <div class="hint">We use robust defaults (median/mode). You can refine later.</div>
+            <details class="details">
+              <summary>See columns with missing</summary>
+              <ul id="missingCols" class="tiny-list"></ul>
+            </details>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="action-footer">
+        <button class="secondary-btn" id="btnReset">Reset</button>
+        <button class="primary-btn" id="btnPreview">
+          <span>Preview changes</span>
+          <div class="btn-icon">⏵</div>
+        </button>
+      </div>
+    </section>
+
+    <!-- Preview / Apply -->
+    <section class="preview-section hidden" id="previewSection">
+      <div class="section-header">
+        <h3>Preview impact</h3>
+        <p>Compare before vs after and review the change log</p>
+      </div>
+
+      <div class="kpi-compare">
+        <div class="kpi-col">
+          <div class="kpi-head">Before</div>
+          <div class="kpi-row"><span class="kpi-label">Rows</span><span id="prevRows">-</span></div>
+          <div class="kpi-row"><span class="kpi-label">Duplicates</span><span id="prevDups">-</span></div>
+          <div class="kpi-row"><span class="kpi-label">Completeness</span><span id="prevComp">-</span></div>
+        </div>
+        <div class="kpi-col arrow">→</div>
+        <div class="kpi-col">
+          <div class="kpi-head">After (preview)</div>
+          <div class="kpi-row"><span class="kpi-label">Rows</span><span id="afterRows">-</span></div>
+          <div class="kpi-row"><span class="kpi-label">Duplicates</span><span id="afterDups">-</span></div>
+          <div class="kpi-row"><span class="kpi-label">Completeness</span><span id="afterComp">-</span></div>
+        </div>
+      </div>
+
+      <div class="log-section">
+        <h4>Change log</h4>
+        <ul id="changeLog" class="tiny-list"></ul>
+      </div>
+
+      <div class="preview-footer">
+        <button class="secondary-btn" id="btnBackToActions">
+          <span>Back to actions</span>
+          <div class="btn-icon">↑</div>
+        </button>
+        <button class="primary-btn" id="btnApply">
+          <span>Apply & Continue to Anomalies</span>
+          <div class="btn-icon">→</div>
+        </button>
+      </div>
+    </section>
+  </main>
+
+  <footer><small class="muted">© 2025 Drill DQ</small></footer>
+
+  <script src="/static/js/cleansing-page/cleansing.js"></script>
+</body>
+</html>

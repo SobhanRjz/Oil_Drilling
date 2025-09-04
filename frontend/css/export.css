@@ -1,0 +1,184 @@
+:root {
+    --bg: #0f1420;
+    --card: #141b2b;
+    --accent: #f3b83a;
+    --text: #e9efff;
+    --muted: #94a3b8;
+    --success: #10b981;
+    --warning: #f59e0b;
+    --danger: #ef4444;
+    --border: #1f2937;
+    --animation-ease: cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  
+  /* Export section */
+  .export-section {
+    margin: 64px 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 400px;
+  }
+  
+  .export-container {
+    max-width: 600px;
+    width: 100%;
+    padding: 0 20px;
+  }
+  
+  .export-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 48px 32px;
+    text-align: center;
+    transition: all .25s var(--animation-ease);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+  }
+  
+  .export-card:hover {
+    transform: translateY(-4px);
+    border-color: var(--accent);
+    box-shadow: 0 16px 48px rgba(0, 0, 0, 0.4);
+  }
+  
+  .export-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 24px;
+  }
+  
+  .export-icon {
+    font-size: 64px;
+    margin-bottom: 16px;
+  }
+  
+  .export-content h3 {
+    font-size: 32px;
+    font-weight: 700;
+    color: var(--text);
+    margin: 0;
+  }
+  
+  .export-content p {
+    font-size: 16px;
+    color: var(--muted);
+    margin: 0;
+    line-height: 1.5;
+    max-width: 400px;
+  }
+  
+  /* Export button */
+  .export-btn {
+    background: var(--accent);
+    color: #0f1420;
+    border: none;
+    border-radius: 16px;
+    padding: 16px 32px;
+    font-size: 16px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all .25s var(--animation-ease);
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    box-shadow: 0 4px 16px rgba(243, 184, 58, 0.3);
+    position: relative;
+    overflow: hidden;
+  }
+  
+  .export-btn:hover {
+    background: #e4a82d;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(243, 184, 58, 0.4);
+  }
+  
+  .export-btn:active {
+    transform: translateY(0);
+  }
+  
+  .export-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+  }
+  
+  .btn-icon {
+    font-size: 18px;
+    display: flex;
+    align-items: center;
+    transition: transform .25s var(--animation-ease);
+  }
+  
+  .export-btn:hover .btn-icon {
+    transform: translateY(2px);
+  }
+  
+  /* Animations */
+  .revealed {
+    animation: reveal 0.8s var(--animation-ease) forwards;
+  }
+  
+  @keyframes reveal {
+    from {
+      opacity: 0;
+      transform: translateY(30px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  
+  /* Success state */
+  .export-success {
+    background: var(--success) !important;
+    color: white !important;
+    box-shadow: 0 4px 16px rgba(16, 185, 129, 0.3);
+  }
+  
+  .export-success:hover {
+    background: #059669 !important;
+    box-shadow: 0 8px 24px rgba(16, 185, 129, 0.4);
+  }
+  
+  /* Loading state */
+  .export-loading {
+    background: var(--muted) !important;
+    color: var(--bg) !important;
+  }
+  
+  .export-loading .btn-icon {
+    animation: spin 1s linear infinite;
+  }
+  
+  @keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+  }
+  
+  /* Responsive */
+  @media (max-width: 768px) {
+    .export-section {
+      margin: 32px 0;
+      min-height: 300px;
+    }
+    
+    .export-card {
+      padding: 32px 20px;
+    }
+    
+    .export-icon {
+      font-size: 48px;
+    }
+    
+    .export-content h3 {
+      font-size: 24px;
+    }
+    
+    .export-btn {
+      padding: 14px 24px;
+      font-size: 15px;
+    }
+  }

@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Drill DQ · Export</title>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <!-- Global styles + overview shared components -->
+  <link rel="stylesheet" href="/static/css/style.css"/>
+  <link rel="stylesheet" href="/static/css/overview.css"/>
+  <!-- Page specific -->
+  <link rel="stylesheet" href="/static/css/export.css"/>
+</head>
+<body>
+  <!-- Back button -->
+  <div class="back-button-container">
+    <button class="back-btn" onclick="window.location.href='/anomalies'">
+      <span class="back-icon">←</span>
+      <span class="back-text">Back to Anomalies</span>
+    </button>
+  </div>
+
+  <!-- Stepper -->
+  <div class="stepper">
+    <div class="step done"><div class="bubble">1</div><div class="label">Overview</div></div>
+    <div class="sep"></div>
+    <div class="step done"><div class="bubble">2</div><div class="label">Cleansing</div></div>
+    <div class="sep"></div>
+    <div class="step done"><div class="bubble">3</div><div class="label">Anomalies</div></div>
+    <div class="sep"></div>
+    <div class="step active"><div class="bubble">4</div><div class="label">Export</div></div>
+  </div>
+
+  <main>
+    <!-- Title -->
+    <section class="main-title revealed">
+      <h2>Export Data</h2>
+      <p>Download your cleaned and processed dataset in CSV format.</p>
+    </section>
+
+    <!-- Export Section -->
+    <section class="export-section revealed">
+      <div class="export-container">
+        <div class="export-card">
+          <div class="export-content">
+            <div class="export-icon">📄</div>
+            <h3>Ready for Export</h3>
+            <p>Your dataset has been processed through all quality checks and is ready for download.</p>
+            <button class="export-btn" id="exportBtn">
+              <span>Export to CSV</span>
+              <div class="btn-icon">↓</div>
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer><small class="muted">© 2025 Drill DQ</small></footer>
+
+  <script src="/static/js/export-page/export.js"></script>
+</body>
+</html>

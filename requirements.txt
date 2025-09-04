@@ -4,17 +4,3 @@ python-multipart==0.0.9
 pandas==2.2.2
 numpy==1.26.4
 itsdangerous
-
-https://SobhanRjz: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@github.com/SobhanRjz/Oil_Drilling.git
-git clone https://x-access-token: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@github.com/SobhanRjz/Oil_Drilling.git
-
-git -c http.extraHeader="Authorization: Bearer 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" clone https://github.com/SobhanRjz/Oil_Drilling.git
-
-C:\Users\sobha\Desktop\LLM>git -c http.extraHeader="Authorization: Bearer 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" clone https://github.com/SobhanRjz/Oil_Drilling.git
-Cloning into 'Oil_Drilling'...
-remote: invalid credentials
-fatal: Authentication failed for 'https://github.com/SobhanRjz/Oil_Drilling.git/'
-
-git clone https://SobhanRjz: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@github.com/SobhanRjz/Oil_Drilling.git
-
-git clone https://oauth2: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@github.com/SobhanRjz/Oil_Drilling.git

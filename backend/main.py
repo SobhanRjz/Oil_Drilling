@@ -7,37 +7,50 @@ from pathlib import Path
 import pandas as pd
 from typing import Optional
 
-from backend.auth import current_user_email
+# Removed duplicate import - using the local .auth import below
 
-from .profiling import profile_dataframe
-from .cleaning import deduplicate, standardize, impute_simple, kpis
-from .services.storage import STORE
-from .auth import (
+from backend.profiling import profile_dataframe
+from backend.cleaning import deduplicate, standardize, impute_simple, kpis
+from backend.services.storage import STORE
+from backend.auth import (
     COOKIE_NAME, COOKIE_MAX_AGE, verify_credentials,
     create_cookie_value, current_user_email
 )
-from .cleaning_api import _get_df, _duplicates_count,\
+from backend.cleaning_api import _get_df as get_df_cleaning, _duplicates_count,\
     _missing_by_column, _completeness_pct, ApplyRequest,\
-    _put_df, df_records_safe, dict_numbers_safe    
+    _put_df, df_records_safe, dict_numbers_safe
 
-from .anomalies_api import (
-    _get_df, _iqr_per_col, _dup_count, _missing_col, SKLEARN,
+from backend.anomalies_api import (
+    _get_df as get_df_anomalies, _iqr_per_col, _dup_count, _missing_col, SKLEARN,
     _safe_numeric,          # <-- add this
 )
-from fastapi import FastAPI, UploadFile, File, Form, HTTPException, Response, Depends, Body
-from fastapi import Request as FastAPIRequest
+from fastapi import FastAPI, UploadFile, File, Form, HTTPException, Response, Depends, Body, Request as FastAPIRequest, Query
 import numpy as np
-from fastapi import Query
 from typing import List, Dict, Any
+from sklearn.ensemble import IsolationForest
 
-ROOT = Path(__file__).resolve().parents[1]
-FRONTEND_DIR = ROOT / "frontend"
+import sys
+import os
+import webbrowser
+import threading
+import time
+
+# Handle paths for both development and bundled executable
+if getattr(sys, "frozen", False):
+    # Running from bundled executable - use _MEIPASS for bundled files
+    BUNDLE_ROOT = Path(getattr(sys, "_MEIPASS", Path(sys.executable).parent))
+    ROOT = Path(sys.executable).resolve().parent  # where the exe lives
+else:
+    # Running from source
+    BUNDLE_ROOT = ROOT = Path(__file__).resolve().parents[1]
+
+FRONTEND_DIR = BUNDLE_ROOT / "frontend"
 
 app = FastAPI(title="Drilling DQ Demo v2", version="0.2.0")
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=["http://127.0.0.1:8000"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -195,7 +208,15 @@ def api_export(dataset_id: str):
         df = STORE.get_clean(dataset_id)
     except KeyError:
         raise HTTPException(status_code=404, detail="Dataset not found. Re-upload and retry.")
-    out = ROOT.parent / "data" / f"{dataset_id}_clean.csv"
+    # Handle export path for both development and bundled executable
+    if getattr(sys, 'frozen', False):
+        # Running from bundled executable - save to user's Downloads or temp directory
+        import tempfile
+        temp_dir = Path(tempfile.gettempdir())
+        out = temp_dir / f"{dataset_id}_clean.csv"
+    else:
+        # Running from source
+        out = ROOT.parent / "data" / f"{dataset_id}_clean.csv"
     df.to_csv(out, index=False)
     return FileResponse(str(out), media_type="text/csv", filename=out.name)
 
@@ -306,7 +327,7 @@ async def cleansing_page(request: FastAPIRequest):
 @app.get("/api/cleansing/preview")
 def preview(dataset_id: Optional[str] = Query(default=None)):
     import math
-    df = _get_df(dataset_id)
+    df = get_df_cleaning(dataset_id)
     cols = list(df.columns)
 
     # Stats
@@ -339,7 +360,7 @@ def preview(dataset_id: Optional[str] = Query(default=None)):
     # optional targets
     std_targets = []
     try:
-        from cleaning import ALIASES, UNIT_MAP  # type: ignore
+        from .cleaning import ALIASES, UNIT_MAP  # type: ignore
         std_targets = [f"Alias → {k}" for k in ALIASES.keys()] + [f"Unit → {k}" for k in UNIT_MAP.keys()]
     except Exception:
         pass
@@ -365,7 +386,7 @@ def preview(dataset_id: Optional[str] = Query(default=None)):
 
 @app.post("/api/cleansing/apply")
 def apply(req: ApplyRequest = Body(...)):
-    df0 = _get_df(req.dataset_id)
+    df0 = get_df_cleaning(req.dataset_id)
     applied: List[str] = []
     df = df0.copy()
     imputations: List[Dict[str, Any]] = []
@@ -422,7 +443,7 @@ async def anomalies_page(request: FastAPIRequest):
 @app.get("/api/anomalies/rows")
 def rows(dataset_id: Optional[str] = Query(default=None), limit: int = 100):
     """Return a small sample of flagged rows (combined IQR + IForest)."""
-    df = _get_df(dataset_id)
+    df = get_df_anomalies(dataset_id)
 
     # IQR mask
     iqr = _iqr_per_col(df)
@@ -468,7 +489,7 @@ def rows(dataset_id: Optional[str] = Query(default=None), limit: int = 100):
 @app.get("/api/anomalies/summary")
 def summary(dataset_id: Optional[str] = Query(default=None)):
     """Aggregated anomalies snapshot to fill KPI cards and lists."""
-    df = _get_df(dataset_id)
+    df = get_df_anomalies(dataset_id)
 
     # Missingness
     miss_by_col = _missing_col(df)
@@ -533,6 +554,12 @@ def summary(dataset_id: Optional[str] = Query(default=None)):
     }
 
 
+def open_browser():
+    """Open browser to login page after server starts"""
+    time.sleep(2)  # Wait for server to start
+    webbrowser.open("http://127.0.0.1:8000/login")
+
+
 @app.get("/export", response_class=HTMLResponse)
 async def export_page(request: FastAPIRequest):
     # Require auth before showing export page
@@ -572,3 +599,16 @@ def export_csv(dataset_id: Optional[str] = Query(default=None)):
         raise HTTPException(status_code=404, detail=f"Dataset not found: {str(e)}")
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Export failed: {str(e)}")
+
+
+if __name__ == "__main__":
+    import uvicorn
+
+    # If running from executable, open browser automatically
+    if getattr(sys, 'frozen', False):
+        browser_thread = threading.Thread(target=open_browser)
+        browser_thread.daemon = True
+        browser_thread.start()
+
+    # Start the server
+    uvicorn.run(app, host="127.0.0.1", port=8000)

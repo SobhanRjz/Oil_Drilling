@@ -4,8 +4,17 @@ from typing import Dict, Optional
 import pandas as pd
 from pathlib import Path
 import uuid
+import sys
+import tempfile
 
-DATA_DIR = Path(__file__).resolve().parents[2] / "data"
+# Handle data directory for both development and bundled executable
+if getattr(sys, 'frozen', False):
+    # Running from bundled executable - use temp directory for data storage
+    DATA_DIR = Path(tempfile.gettempdir()) / "drilling_dq_data"
+    DATA_DIR.mkdir(exist_ok=True)
+else:
+    # Running from source
+    DATA_DIR = Path(__file__).resolve().parents[2] / "data"
 
 @dataclass
 class DatasetEntry:

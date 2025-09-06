@@ -13,7 +13,7 @@ router = APIRouter(prefix="/api/anomalies", tags=["anomalies"])
 
 # --- Replace these with real imports if available in your project ---
 try:
-    from .services.storage import STORE  # same STORE used by cleansing/overview
+    from backend.services.storage import STORE  # absolute to work in PyInstaller
 except Exception:  # fallback for standalone
     class _TmpStore:
         def __init__(self):

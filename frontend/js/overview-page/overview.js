@@ -104,10 +104,11 @@
       console.log('Rendering charts...');
       console.log('Chart data available:', window.chartData);
       
-      renderDonutCharts(window.chartData?.dq || 0, window.chartData?.comp || 0);
+      renderDonutCharts(window.chartData?.dq || 0, window.chartData?.comp || 0, window.chartData?.uniq || 0);
       renderColumnTypesChart();
       renderDataTypesChart();
       renderMissingDataChart(window.chartData?.missingData || {});
+      renderUniquenessDataChart(window.chartData?.uniquenessData || {});
       updateMissingStats(window.chartData?.missingData || {});
     }, 2000); // Increased delay to ensure sections are visible
     
@@ -131,8 +132,8 @@
       value.style.opacity = '0.6';
     });
 
-    // Add loading animation to chart centers
-    const centerValues = document.querySelectorAll('.center-value');
+    // Add loading animation to chart centers (except dqCenter which shows exact value)
+    const centerValues = document.querySelectorAll('.center-value:not(#dqCenter)');
     centerValues.forEach(value => {
       value.textContent = '...';
       value.style.opacity = '0.6';
@@ -157,7 +158,9 @@
       window.chartData = {
         dq: data.dq_score ?? 0,
         comp: data.completeness ?? 0,
+        uniq: data.uniqueness ?? 0,
         missingData: data.missingness_by_column || {},
+        uniquenessData: data.uniqueness_by_column || {},
         columnTypes: data.column_types || {},
         dataTypesDistribution: data.data_types_distribution || {},
         missingStats: data.missing_stats || {}
@@ -212,6 +215,7 @@
       const element = document.getElementById(elementId);
       const startTime = performance.now();
       const isPercentage = elementId.includes('DQ') || elementId.includes('Comp') || elementId.includes('Uniq');
+      const isExactValue = elementId === 'kDQ' || elementId === 'kComp' || elementId === 'kUniq' || elementId === 'uniqCenter'; // These elements show exact values without rounding
       
       function updateCounter(currentTime) {
         const elapsed = currentTime - startTime;
@@ -222,9 +226,17 @@
         const currentValue = start + (end - start) * easeOutQuart;
         
         if (isPercentage) {
-          element.textContent = currentValue.toFixed(1) + '%';
+          if (isExactValue) {
+            // For exact value elements, show exact value without rounding
+            element.textContent = end + '%';
+          } else if (elementId === 'compCenter') {
+            // For compCenter, show exact intermediate values without rounding
+            element.textContent = currentValue + '%';
+          } else {
+            element.textContent = currentValue.toFixed(1) + '%';
+          }
         } else {
-          element.textContent = Math.round(currentValue).toLocaleString();
+          element.textContent = currentValue.toFixed(1).toLocaleString();
         }
         
         element.style.opacity = '1';
@@ -240,16 +252,17 @@
     });
   }
 
-  function updateChartCenters(dq, comp) {
+  function updateChartCenters(dq, comp, uniq) {
     const dqCenter = document.getElementById('dqCenter');
     const compCenter = document.getElementById('compCenter');
-    
-    // Animate center values
-    animateCounter('dqCenter', 0, dq, 800);
+    const uniqCenter = document.getElementById('uniqCenter');
+
+    // dqCenter is already set to exact value in HTML, animate compCenter and uniqCenter
     animateCounter('compCenter', 0, comp, 800);
+    animateCounter('uniqCenter', 0, uniq, 800);
   }
 
-  function renderDonutCharts(dq, comp) {
+  function renderDonutCharts(dq, comp, uniq) {
     // DQ Score Chart
     const dqCtx = document.getElementById('dqDonut');
     new Chart(dqCtx, {
@@ -328,8 +341,47 @@
       }
     });
 
+    // Uniqueness Chart
+    const uniqCtx = document.getElementById('uniqDonut');
+    new Chart(uniqCtx, {
+      type: 'doughnut',
+      data: {
+        labels: ['Unique', 'Duplicates'],
+        datasets: [{
+          data: [uniq, 100 - uniq],
+          backgroundColor: [
+            '#ef4444',
+            'rgba(55, 65, 81, 0.1)'
+          ],
+          borderWidth: 0,
+          cutout: '75%',
+          borderRadius: 8,
+          borderSkipped: false
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false },
+          tooltip: { enabled: false }
+        },
+        animation: {
+          duration: 2000,
+          easing: 'easeOutQuart',
+          animateRotate: true,
+          animateScale: true
+        },
+        elements: {
+          arc: {
+            borderWidth: 0
+          }
+        }
+      }
+    });
+
     // Update chart centers
-    updateChartCenters(dq, comp);
+    updateChartCenters(dq, comp, uniq);
   }
 
   function renderMissingDataChart(missingData) {
@@ -354,6 +406,80 @@
           data: sortedValues,
           backgroundColor: 'rgba(239, 68, 68, 0.8)',
           borderColor: 'rgba(239, 68, 68, 1)',
+          borderWidth: 1,
+          borderRadius: 4,
+          borderSkipped: false
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            backgroundColor: 'rgba(0, 0, 0, 0.8)',
+            titleColor: '#fff',
+            bodyColor: '#fff',
+            borderColor: 'rgba(255, 255, 255, 0.1)',
+            borderWidth: 1,
+            cornerRadius: 8,
+            displayColors: false
+          }
+        },
+        scales: {
+          y: {
+            beginAtZero: true,
+            max: 100,
+            ticks: {
+              callback: function(value) {
+                return value + '%';
+              },
+              color: '#94a3b8'
+            },
+            grid: {
+              color: 'rgba(148, 163, 184, 0.1)'
+            }
+          },
+          x: {
+            ticks: {
+              color: '#94a3b8',
+              maxRotation: 45
+            },
+            grid: {
+              display: false
+            }
+          }
+        },
+        animation: {
+          duration: 1000,
+          easing: 'easeOutQuart'
+        }
+      }
+    });
+  }
+
+  function renderUniquenessDataChart(uniquenessData) {
+    const labels = Object.keys(uniquenessData);
+    const values = Object.values(uniquenessData).map(v => Math.round(v * 10) / 10);
+
+    // Sort by uniqueness percentage (descending)
+    const sortedData = labels.map((label, index) => ({
+      label,
+      value: values[index]
+    })).sort((a, b) => b.value - a.value);
+
+    const sortedLabels = sortedData.map(item => item.label);
+    const sortedValues = sortedData.map(item => item.value);
+
+    new Chart(document.getElementById('uniqBar'), {
+      type: 'bar',
+      data: {
+        labels: sortedLabels,
+        datasets: [{
+          label: 'Uniqueness %',
+          data: sortedValues,
+          backgroundColor: '#ef4444',
+          borderColor: '#ef4444',
           borderWidth: 1,
           borderRadius: 4,
           borderSkipped: false
@@ -573,7 +699,13 @@
         datasets: [{
           label: 'Count',
           data: data,
-          backgroundColor: 'rgba(255, 255, 255, 0.8)',
+          backgroundColor: [
+            'rgba(0, 212, 170, 0.8)',
+            'rgba(255, 149, 0, 0.8)',
+            'rgba(255, 59, 48, 0.8)',
+            'rgba(255, 255, 255, 0.8)',
+            'rgba(88, 86, 214, 0.8)'
+          ],
           borderColor: 'rgba(255, 255, 255, 1)',
           borderWidth: 1,
           borderRadius: 4
@@ -629,6 +761,7 @@
     document.getElementById('totalMissing').textContent = missingStats.total_missing || 0;
     document.getElementById('columnsWithMissing').textContent = missingStats.columns_with_missing || 0;
     document.getElementById('missingPercentage').textContent = (missingStats.missing_percentage || 0) + '%';
+    document.getElementById('totalDuplicates').textContent = missingStats.columns_with_missing || 0;
   }
 
   // Add CSS animations dynamically

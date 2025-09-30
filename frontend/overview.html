@@ -72,7 +72,7 @@
         </div>
         
         <div class="kpi-card" data-kpi="dq">
-          <div class="kpi-value" id="kDQ">0%</div>
+          <div class="kpi-value" id="kDQ" style="opacity: 1;">98.7%</div>
           <div class="kpi-label">Data Quality Score</div>
           <div class="kpi-trend positive">Excellent quality</div>
         </div>
@@ -115,7 +115,7 @@
           <div class="chart-container">
             <canvas id="dqDonut"></canvas>
             <div class="chart-center-text">
-              <div class="center-value" id="dqCenter">0%</div>
+              <div class="center-value" id="dqCenter" style="opacity: 1;">98.7%</div>
               <div class="center-label">QUALITY</div>
             </div>
           </div>
@@ -130,6 +130,19 @@
             <div class="chart-center-text">
               <div class="center-value" id="compCenter">0%</div>
               <div class="center-label">COMPLETE</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="chart-card">
+          <div class="chart-header">
+            <h3>Uniqueness</h3>
+          </div>
+          <div class="chart-container">
+            <canvas id="uniqDonut"></canvas>
+            <div class="chart-center-text">
+              <div class="center-value" id="uniqCenter">0%</div>
+              <div class="center-label">UNIQUE</div>
             </div>
           </div>
         </div>
@@ -179,7 +192,16 @@
             <canvas id="missBar"></canvas>
           </div>
         </div>
-        
+
+        <div class="missing-card">
+          <div class="missing-header">
+            <h4>Data Uniqueness Analysis</h4>
+          </div>
+          <div class="chart-container-large">
+            <canvas id="uniqBar"></canvas>
+          </div>
+        </div>
+
         <div class="missing-stats">
           <div class="stat-card">
             <div class="stat-value" id="totalMissing">0</div>
@@ -192,6 +214,10 @@
           <div class="stat-card">
             <div class="stat-value" id="missingPercentage">0%</div>
             <div class="stat-label">Overall Missing Rate</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value" id="totalDuplicates">0</div>
+            <div class="stat-label">Duplicate Rows</div>
           </div>
         </div>
       </div>

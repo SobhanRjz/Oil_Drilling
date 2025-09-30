@@ -20,11 +20,11 @@
         if(!res.ok){ throw new Error(await res.text()); }
         const data = await res.json();
   
-        // KPI cards - using correct IDs that exist in HTML
-        el('kpiRows').textContent = nf(data.shape?.rows);
-        el('kpiCols').textContent = nf(data.shape?.cols);
-        el('kpiMissing').textContent = `${nf(data.missing?.total_missing)} (${pf(data.missing?.pct_missing)})`;
-        el('kpiDup').textContent = `${nf(data.duplicates?.row_duplicates)} (${pf(data.duplicates?.row_duplicates_pct)})`;
+        // KPI cards removed from HTML
+        // el('kpiRows').textContent = nf(data.shape?.rows);
+        // el('kpiCols').textContent = nf(data.shape?.cols);
+        // el('kpiMissing').textContent = `${nf(data.missing?.total_missing)} (${pf(data.missing?.pct_missing)})`;
+        // el('kpiDup').textContent = `3.4`;
         el('kpiIqr').textContent = nf(data.outliers?.n_rows_flagged);
         
         // Note: kpiIF element doesn't exist in HTML, removing this line

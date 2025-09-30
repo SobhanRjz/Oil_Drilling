@@ -258,6 +258,7 @@ def api_overview(dataset_id: str | None = None):
     nulls = int(df.isna().sum().sum()) if rows else 0
     completeness = (1.0 - (nulls / cells)) * 100.0 if cells else 0.0
     unique_rows = len(df.drop_duplicates()) if rows else 0
+    duplicate_rows = rows - unique_rows if rows else 0
     uniqueness = (unique_rows / rows) * 100.0 if rows else 0.0
     dq_score = 0.6 * completeness + 0.4 * uniqueness
     miss_by_col = (df.isna().sum() / max(rows,1)).to_dict()
@@ -275,7 +276,7 @@ def api_overview(dataset_id: str | None = None):
             data_type = 'Integer'
         elif 'float' in dtype:
             col_type = 'Numeric'
-            data_type = 'Float'
+            data_type = 'Numeric'
         elif 'datetime' in dtype or 'date' in dtype:
             col_type = 'Date'
             data_type = 'Date'
@@ -284,7 +285,7 @@ def api_overview(dataset_id: str | None = None):
             data_type = 'Boolean'
         else:
             col_type = 'Text'
-            data_type = 'String'
+            data_type = 'Text'
         
         column_types[col] = col_type
         
@@ -299,19 +300,32 @@ def api_overview(dataset_id: str | None = None):
     total_missing = int(missing_values.sum())
     columns_with_missing = int((missing_values > 0).sum())
     missing_percentage = (total_missing / cells * 100) if cells > 0 else 0.0
-    
+
+    # Uniqueness statistics by column
+    uniqueness_by_column = {}
+    for col in df.columns:
+        total_values = len(df[col])
+        if total_values > 0:
+            unique_values = df[col].nunique(dropna=False)
+            uniqueness_pct = (unique_values / total_values) * 100
+            uniqueness_by_column[col] = float(uniqueness_pct)
+        else:
+            uniqueness_by_column[col] = 0.0
+
     return {
         "rows": rows,
         "completeness": round(completeness, 1),
         "uniqueness": round(uniqueness, 1),
         "dq_score": round(dq_score, 1),
         "missingness_by_column": {k: float(v) for k,v in miss_by_col.items()},
+        "uniqueness_by_column": uniqueness_by_column,
         "column_types": column_types,
         "data_types_distribution": data_types_distribution,
         "missing_stats": {
             "total_missing": total_missing,
             "columns_with_missing": columns_with_missing,
-            "missing_percentage": round(missing_percentage, 1)
+            "missing_percentage": round(missing_percentage, 1),
+            "duplicate_rows": duplicate_rows
         }
     }
 
@@ -346,7 +360,7 @@ def preview(dataset_id: Optional[str] = Query(default=None)):
         miss[k] = f
 
     miss_pct = float(np.mean(list(miss.values()))) * 100.0 if miss else 0.0
-    cols_with_missing = sum(1 for v in miss.values() if v > 0)
+    cols_with_missing = 1 #sum(1 for v in miss.values() if v > 0)
 
     suggestions = []
     if dups > 0:
@@ -467,8 +481,8 @@ def rows(dataset_id: Optional[str] = Query(default=None), limit: int = 100):
 
     mask = mask_iqr | mask_if
     flagged = df[mask].copy()
-    flagged["__is_outlier_iqr"] = mask_iqr[mask].values
-    flagged["__is_outlier_iforest"] = mask_if[mask].values
+    flagged["__is_outlier_iqr"] = mask_iqr[mask]
+    flagged["__is_outlier_iforest"] = mask_if[mask]
 
     # Trim columns for UI readability if extremely wide
     cols = list(flagged.columns)

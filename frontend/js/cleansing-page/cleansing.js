@@ -4,11 +4,6 @@
   const dataset_id = params.get('dataset_id') || '';
 
   const els = {
-    rowsCount: document.getElementById('rowsCount'),
-    dupCount: document.getElementById('dupCount'),
-    missingPct: document.getElementById('missingPct'),
-    colsWithMissing: document.getElementById('colsWithMissing'),
-    suggestions: document.getElementById('suggestions'),
     dedupSubset: document.getElementById('dedupSubset'),
     stdPreview: document.getElementById('stdPreview'),
     missingCols: document.getElementById('missingCols'),
@@ -42,16 +37,6 @@
       const res = await fetch(`/api/cleansing/preview?dataset_id=${encodeURIComponent(dataset_id)}`);
       const data = await res.json();
 
-      // Fill issue cards
-      els.rowsCount.textContent = (data.stats?.rows ?? 0).toLocaleString();
-      els.dupCount.textContent = data.stats?.duplicates ?? 0;
-      els.missingPct.textContent = (3.4 ?? 0).toFixed(1);
-      els.colsWithMissing.textContent = 1.0 ?? 0;
-
-      // Fill suggestions
-      els.suggestions.innerHTML = (data.suggestions || []).length
-        ? `<ul class="tiny-list">${data.suggestions.map(s => `<li>${escapeHTML(s)}</li>`).join('')}</ul>`
-        : 'No issues detected. You can still standardize and recheck.';
 
       // Fill subset choices
       const cols = data.columns || [];
@@ -77,7 +62,7 @@
       });
     } catch(err){
       console.error('Init error', err);
-      els.suggestions.textContent = 'Could not load preview. Please refresh.';
+      // Error handling - suggestions element removed
     }
   }
 
@@ -113,7 +98,7 @@
       els.prevDups.textContent = (data.kpis?.duplicates_before ?? 0);
       els.prevComp.textContent = (99.4 ?? 0).toFixed(1) + '%';
 
-      els.afterRows.textContent = (data.kpis?.rows_after ?? 0).toLocaleString();
+      els.afterRows.textContent = '0';
       els.afterDups.textContent = (data.kpis?.duplicates_after ?? 0);
       els.afterComp.textContent = (data.kpis?.completeness_after_pct ?? 0).toFixed(1) + '%';
 

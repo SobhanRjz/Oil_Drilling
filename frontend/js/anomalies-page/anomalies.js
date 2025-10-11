@@ -35,17 +35,47 @@
   
         // Note: dupMeta element doesn't exist in HTML, removing this line
   
-        // IQR list
-        const pills = (data.outliers?.per_column || []).map(o => pill(`${o.column}: ${nf(o.count)}`, o.count>0 ? 'warn' : ''));
-        el('iqrPills').innerHTML = pills.join('');
+        // IQR list - show columns with problems
+        const outlierColumns = (data.outliers?.per_column || []).filter(o => o.count > 0);
+        const outlierColumns_iforest = (data.iforest?.per_column || []).filter(o => o.count_in_flagged > 0);
+        const iqrPills = [];
+
+        if (outlierColumns.length > 0) {
+          iqrPills.push(pill(`Columns with outliers: ${outlierColumns.length}`, 'warn'));
+          iqrPills.push(...outlierColumns.map(o => pill(o.column, 'info')));
+        } else {
+          iqrPills.push(pill('No outliers detected', ''));
+        }
+
+        el('iqrPills').innerHTML = iqrPills.join('');
   
-        // IForest - using correct IDs that exist in HTML
+        // IForest - using pills format
         if (!data.iforest?.available){
+          el('kpiIf').textContent = '0';
+          el('ifColumns').innerHTML = '';
           el('ifMeta').innerHTML = '';
           el('ifNote').textContent = data.iforest?.note || 'IsolationForest unavailable.';
         } else {
           el('ifNote').textContent = '';
-          el('ifMeta').innerHTML = badge(`Flagged: ${nf(data.iforest?.n_rows_flagged)}`) + badge(`${pf(data.iforest?.pct_rows_flagged)}`);
+
+          // Update KPI value
+          el('kpiIf').textContent = nf(data.iforest?.n_rows_flagged) || '0';
+
+          // Show column names below KPI
+          let columnHTML = '';
+          if (data.iforest?.important_features && data.iforest.important_features.length > 0) {
+            columnHTML = data.iforest.important_features.map(col => `<span class="column-item">${escapeHTML(col)}</span>`).join('');
+          } else if (data.iforest?.flagged_columns && data.iforest.flagged_columns.length > 0) {
+            columnHTML = data.iforest.flagged_columns.map(col => `<span class="column-item">${escapeHTML(col)}</span>`).join('');
+          }
+          el('ifColumns').innerHTML = columnHTML;
+
+          // Create pills for summary stats (only percentage)
+          const summaryPills = [
+            pill(`Columns with outliers: ${data.iforest?.per_column.length}`, 'warn')
+          ];
+          summaryPills.push(...outlierColumns_iforest.map(o => pill(o.column, 'info')));
+          el('ifMeta').innerHTML = summaryPills.join('');
         }
   
         // Dtypes & constants
@@ -65,7 +95,34 @@
         const res = await fetch(`/api/anomalies/rows?dataset_id=${encodeURIComponent(dataset_id)}&limit=100`);
         if(!res.ok){ throw new Error(await res.text()); }
         const data = await res.json();
-        el('flagTable').innerHTML = toTable(data.rows, data.columns);
+
+        // Create highlighted rows with outlier values
+        const highlightedRows = data.rows.map((row, index) => {
+          const highlightedRow = { ...row };
+
+          // The outlier_values object keys are the original DataFrame indices
+          // We need to map the row index in the returned data to the outlier info
+          if (data.outlier_values) {
+            // Get all outlier indices and find the corresponding row
+            const outlierIndices = Object.keys(data.outlier_values);
+            if (outlierIndices[index]) {
+              const outlierInfo = data.outlier_values[outlierIndices[index]];
+              if (outlierInfo) {
+                // Highlight outlier values
+                Object.keys(outlierInfo).forEach(col => {
+                  if (col in highlightedRow) {
+                    const value = highlightedRow[col];
+                    highlightedRow[col] = `<span class="outlier-value">${value}</span>`;
+                  }
+                });
+              }
+            }
+          }
+
+          return highlightedRow;
+        });
+
+        el('flagTable').innerHTML = toTable(highlightedRows, data.columns);
       } catch(e){
         console.error('Rows error', e);
         injectError('Failed to load flagged rows.');
@@ -77,7 +134,7 @@
       if(!rows || !rows.length){ return '<div class="muted">No data</div>'; }
       const cols = columns && columns.length ? columns : Object.keys(rows[0]);
       const thead = `<thead><tr>${cols.map(c=>`<th>${esc(c)}</th>`).join('')}</tr></thead>`;
-      const tbody = `<tbody>${rows.map(r=>`<tr>${cols.map(c=>`<td>${esc(r[c])}</td>`).join('')}</tr>`).join('')}</tbody>`;
+      const tbody = `<tbody>${rows.map(r=>`<tr>${cols.map(c=>`<td>${r[c]}</td>`).join('')}</tr>`).join('')}</tbody>`;
       return `<table>${thead}${tbody}</table>`;
     }
     const pill = (text, cls='') => `<span class="pill ${cls}">${esc(text)}</span>`;

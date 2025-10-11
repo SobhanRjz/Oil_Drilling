@@ -3,6 +3,5 @@ uvicorn==0.30.6
 python-multipart==0.0.9
 pandas==2.2.2
 numpy==1.26.4
-itsdangerous
 pyinstaller==6.15.0
 scikit-learn==1.5.1

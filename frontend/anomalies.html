@@ -14,6 +14,9 @@
   <link rel="stylesheet" href="/static/css/anomalies.css"/>
 </head>
 <body>
+  <!-- Logo -->
+  <img src="/static/asset/Logo.jpg" alt="Drill DQ Logo" class="page-logo">
+
   <!-- Back button -->
   <div class="back-button-container">
     <button class="back-btn" onclick="window.location.href='/cleansing'">
@@ -95,7 +98,12 @@
             </div>
           </div>
           <div class="action-body">
-            <div id="ifMeta" class="badge-row"></div>
+            <div class="kpi-row">
+              <span class="kpi-label">Flagged Rows:</span>
+              <span id="kpiIf" class="kpi-value">0</span>
+            </div>
+            <div id="ifColumns" class="column-list"></div>
+            <div id="ifMeta" class="pill-row"></div>
             <div id="ifNote" class="muted"></div>
           </div>
         </div>
@@ -112,7 +120,7 @@
       <div class="analysis-grid">
         <!-- Missing Data by Column -->
         <div class="analysis-card">
-          <h4>Missing Data by Column</h4>
+          <h4>Outlier Data by Column</h4>
           <div id="missingTable" class="table-wrap"></div>
         </div>
 
@@ -130,11 +138,7 @@
         <div id="flagTable" class="table-wrap scroll"></div>
       </div>
 
-      <!-- Constants -->
-      <div class="constants-section">
-        <h4>Constant Columns</h4>
-        <div id="constCols" class="pill-row"></div>
-      </div>
+
     </section>
 
     <!-- Actions -->

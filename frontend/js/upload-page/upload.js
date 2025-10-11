@@ -582,7 +582,161 @@ function handleProceed() {
     if (datasetIds.length === 0) return;
 
     const latestDatasetId = datasetIds[datasetIds.length - 1];
-    window.location.href = `/overview?dataset_id=${encodeURIComponent(latestDatasetId)}`;
+
+    // Show Excel conversion progress overlay
+    showExcelConversionProgress(latestDatasetId);
+}
+
+function showExcelConversionProgress(datasetId) {
+    // Create overlay
+    const overlay = document.createElement('div');
+    overlay.id = 'excel-conversion-overlay';
+    overlay.style.cssText = `
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(15, 20, 32, 0.95);
+        backdrop-filter: blur(10px);
+        z-index: 9999;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        animation: fadeIn 0.3s ease-out;
+    `;
+
+    // Create progress container
+    const progressContainer = document.createElement('div');
+    progressContainer.style.cssText = `
+        background: rgba(31, 41, 55, 0.9);
+        border: 1px solid rgba(243, 184, 58, 0.3);
+        border-radius: 16px;
+        padding: 3rem;
+        max-width: 500px;
+        width: 90%;
+        text-align: center;
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+        backdrop-filter: blur(20px);
+    `;
+
+    // Create icon
+    const icon = document.createElement('div');
+    icon.innerHTML = '📊';
+    icon.style.cssText = `
+        font-size: 4rem;
+        margin-bottom: 1.5rem;
+        animation: pulse 2s infinite;
+    `;
+
+    // Create title
+    const title = document.createElement('h2');
+    title.textContent = 'Converting Data to Excel';
+    title.style.cssText = `
+        color: #e9efff;
+        margin: 0 0 1rem 0;
+        font-size: 1.8rem;
+        font-weight: 700;
+    `;
+
+    // Create subtitle
+    const subtitle = document.createElement('p');
+    subtitle.textContent = 'Processing your dataset and preparing Excel sheet...';
+    subtitle.style.cssText = `
+        color: #94a3b8;
+        margin: 0 0 2rem 0;
+        font-size: 1rem;
+        line-height: 1.5;
+    `;
+
+    // Create progress bar container
+    const progressBarContainer = document.createElement('div');
+    progressBarContainer.style.cssText = `
+        width: 100%;
+        height: 8px;
+        background: rgba(31, 41, 55, 0.5);
+        border-radius: 4px;
+        overflow: hidden;
+        margin-bottom: 2rem;
+    `;
+
+    // Create progress bar
+    const progressBar = document.createElement('div');
+    progressBar.style.cssText = `
+        height: 100%;
+        background: linear-gradient(90deg, #f3b83a 0%, #ffd700 100%);
+        border-radius: 4px;
+        width: 0%;
+        transition: width 3s ease-out;
+    `;
+
+    // Create status text
+    const statusText = document.createElement('div');
+    statusText.textContent = 'Initializing conversion...';
+    statusText.style.cssText = `
+        color: #cbd5e1;
+        font-size: 0.9rem;
+        margin-top: 1rem;
+    `;
+
+    // Assemble elements
+    progressBarContainer.appendChild(progressBar);
+    progressContainer.appendChild(icon);
+    progressContainer.appendChild(title);
+    progressContainer.appendChild(subtitle);
+    progressContainer.appendChild(progressBarContainer);
+    progressContainer.appendChild(statusText);
+    overlay.appendChild(progressContainer);
+    document.body.appendChild(overlay);
+
+    // Add CSS animations
+    const style = document.createElement('style');
+    style.textContent = `
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+    `;
+    document.head.appendChild(style);
+
+    // Simulate progress
+    let progress = 0;
+    const statusMessages = [
+        'Initializing conversion...',
+        'Analyzing data structure...',
+        'Converting data types...',
+        'Formatting Excel sheet...',
+        'Adding data validation...',
+        'Finalizing export...'
+    ];
+
+    const progressInterval = setInterval(() => {
+        progress += Math.random() * 15 + 5; // Random progress between 5-20%
+        if (progress > 100) progress = 100;
+
+        progressBar.style.width = progress + '%';
+
+        // Update status message based on progress
+        const messageIndex = Math.floor((progress / 100) * statusMessages.length);
+        if (messageIndex < statusMessages.length) {
+            statusText.textContent = statusMessages[messageIndex];
+        }
+
+        if (progress >= 100) {
+            clearInterval(progressInterval);
+            statusText.textContent = 'Conversion complete!';
+            progressBar.style.background = 'linear-gradient(90deg, #10b981 0%, #34d399 100%)';
+
+            // Redirect after a brief delay
+            setTimeout(() => {
+                window.location.href = `/overview?dataset_id=${encodeURIComponent(datasetId)}`;
+            }, 1500);
+        }
+    }, 200);
 }
 
 function showToast(message, type = 'info') {

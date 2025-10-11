@@ -353,6 +353,60 @@
     margin-bottom: 16px;
   }
   
+  /* Column list for Isolation Forest */
+  .column-list {
+    margin: 8px 0;
+    padding: 8px 0;
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .column-list:empty {
+    display: none;
+  }
+
+  .column-list::before {
+    content: "Columns with problems:";
+    display: block;
+    font-size: 12px;
+    color: var(--muted);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 6px;
+  }
+
+  .column-list .column-item {
+    display: inline-block;
+    background: rgba(99, 102, 241, 0.1);
+    color: #6366f1;
+    border: 1px solid rgba(99, 102, 241, 0.3);
+    padding: 4px 8px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 500;
+    margin: 2px 4px 2px 0;
+  }
+
+  /* Outlier value highlighting in table */
+  .outlier-value {
+    background: rgba(245, 158, 11, 0.15);
+    color: #f59e0b;
+    border: 1px solid rgba(245, 158, 11, 0.4);
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-weight: 600;
+    display: inline-block;
+    white-space: normal;
+    word-break: break-word;
+    max-width: 120px;
+  }
+
+  /* Ensure table cells can display inline elements properly */
+  .table-wrap td {
+    vertical-align: top;
+  }
+
   /* Responsive */
   @media (max-width: 768px) {
     .analysis-grid {

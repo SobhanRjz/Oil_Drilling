@@ -9,3 +9,10 @@ pip install -r requirements.txt
 uvicorn backend.main:app --reload
 ```
 Open http://localhost:8000
+
+
+
+# build with 
+``` python
+python -m PyInstaller drilling_dq.spec
+```

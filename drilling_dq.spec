@@ -16,13 +16,11 @@ a = Analysis(
         ('data', 'data'),
     ],
     hiddenimports=[
-        'itsdangerous',
         'fastapi',
         'uvicorn',
         'pandas',
         'numpy',
-        'sklearn',
-        'scipy',
+        'sklearn'
     ],
     hookspath=[],
     hooksconfig={},

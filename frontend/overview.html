@@ -12,6 +12,9 @@
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 </head>
 <body>
+  <!-- Logo -->
+  <img src="/static/asset/Logo.jpg" alt="Drill DQ Logo" class="page-logo">
+
   <div class="back-button-container">
     <button class="back-btn" onclick="goBack()">
       <span class="back-icon">←</span>
@@ -76,18 +79,6 @@
           <div class="kpi-label">Data Quality Score</div>
           <div class="kpi-trend positive">Excellent quality</div>
         </div>
-        
-        <div class="kpi-card" data-kpi="completeness">
-          <div class="kpi-value" id="kComp">0%</div>
-          <div class="kpi-label">Completeness</div>
-          <div class="kpi-trend positive">Well populated</div>
-        </div>
-        
-        <div class="kpi-card" data-kpi="uniqueness">
-          <div class="kpi-value" id="kUniq">0%</div>
-          <div class="kpi-label">Uniqueness</div>
-          <div class="kpi-trend positive">Minimal duplicates</div>
-        </div>
       </div>
     </section>
 
@@ -108,19 +99,6 @@
     <!-- Charts Section (Hidden Initially) -->
     <section class="charts-section hidden" id="chartsSection">
       <div class="chart-grid">
-        <div class="chart-card">
-          <div class="chart-header">
-            <h3>Data Quality Score</h3>
-          </div>
-          <div class="chart-container">
-            <canvas id="dqDonut"></canvas>
-            <div class="chart-center-text">
-              <div class="center-value" id="dqCenter" style="opacity: 1;">98.7%</div>
-              <div class="center-label">QUALITY</div>
-            </div>
-          </div>
-        </div>
-        
         <div class="chart-card">
           <div class="chart-header">
             <h3>Completeness</h3>
@@ -195,7 +173,7 @@
 
         <div class="missing-card">
           <div class="missing-header">
-            <h4>Data Uniqueness Analysis</h4>
+            <h4>Duplicate Data Analysis</h4>
           </div>
           <div class="chart-container-large">
             <canvas id="uniqBar"></canvas>

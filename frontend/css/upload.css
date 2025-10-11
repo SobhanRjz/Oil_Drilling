@@ -48,6 +48,24 @@
   padding: 0;
 }
 
+/* Logo Styles */
+.page-logo {
+  position: fixed;
+  top: 20px;
+  left: 20px;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  object-fit: cover;
+  box-shadow: 0 0 20px rgba(99, 102, 241, 0.3);
+  transition: transform 0.3s ease;
+  z-index: 1000;
+}
+
+.page-logo:hover {
+  transform: scale(1.05);
+}
+
 html {
   font-size: 16px;
   line-height: 1.5;
@@ -304,11 +322,12 @@ body {
 /* Upload Features */
 .upload-features {
   display: grid;
-  grid-template-columns: repeat(3, 1fr); /* Force 3 columns in single row */
+  grid-template-columns: repeat(2, 1fr); /* 2 columns for 2 items */
   gap: 1rem;
   width: 100%;
-  max-width: 600px; /* Increased to accommodate 3 items */
-  margin-top: 5rem; /* Add space above the features panel */
+  max-width: 400px; /* Adjusted for 2 items */
+  margin: 5rem auto 0; /* Center horizontally and add space above */
+  justify-content: center;
 }
 
 .feature-item {
@@ -341,11 +360,12 @@ body {
 }
 .upload-features {
   display: grid;
-  grid-template-columns: repeat(3, 1fr); /* Force 3 columns in single row */
+  grid-template-columns: repeat(2, 1fr); /* 2 columns for 2 items */
   gap: 1rem;
   width: 100%;
-  max-width: 600px; /* Increased to accommodate 3 items */
-  margin-top: 5rem; /* Add space above the features panel */
+  max-width: 400px; /* Adjusted for 2 items */
+  margin: 5rem auto 0; /* Center horizontally and add space above */
+  justify-content: center;
 }
 
 .feature-item {

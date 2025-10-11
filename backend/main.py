@@ -459,32 +459,92 @@ def rows(dataset_id: Optional[str] = Query(default=None), limit: int = 100):
     """Return a small sample of flagged rows (combined IQR + IForest)."""
     df = get_df_anomalies(dataset_id)
 
-    # IQR mask
+    # Calculate IQR mask
     iqr = _iqr_per_col(df)
     mask_iqr = pd.Series(False, index=df.index)
     for c, v in iqr.items():
         if c in df and "lower" in v and "upper" in v:
             mask_iqr |= (df[c] < v["lower"]) | (df[c] > v["upper"])  # type: ignore
 
-    # IForest mask
+    # Calculate Isolation Forest mask, also store per-row, per-col outliers for IForest when available
     mask_if = pd.Series(False, index=df.index)
-    print(SKLEARN)
-    print(df.select_dtypes(include=[np.number]).empty)
-    print(len(df) >= 10)
+    iforest_outlier_idxs = set()
+    iforest = {}
+    iforest_bounds = {}
     if SKLEARN and not df.select_dtypes(include=[np.number]).empty and len(df) >= 10:
         try:
             X = _safe_numeric(df)
-            pred = IsolationForest(n_estimators=200, contamination=0.02, random_state=42, n_jobs=-1).fit_predict(X)
+
+            # Ensure X is a numeric DataFrame without Series
+            if isinstance(X, pd.Series):
+                X = X.to_frame()
+
+            model = IsolationForest(n_estimators=200, contamination=0.02, random_state=42, n_jobs=-1)
+            model.fit(X)
+            pred = model.predict(X)
             mask_if = (pred == -1)
-        except Exception:
+            iforest_outlier_idxs = set(df.index[mask_if])
+            # Per-column iforest flags (for UI summary ONLY, not per-row value pointing in sample)
+            for col in X.columns:
+                col_vals = X[col]
+                # count_in_flagged: number of flagged rows (by iforest, not IQR)
+                count_in_flagged = int((mask_if & (~mask_iqr)).sum())
+                # total_nonnull: valid values in column
+                total_nonnull = int(col_vals.notnull().sum())
+                iforest[col] = {
+                    "count_in_flagged": count_in_flagged,
+                    "total_nonnull": total_nonnull
+                }
+                # Calculate rough bounds as heuristic (not true iforest bounds)
+                Q1 = col_vals.quantile(0.30)
+                Q3 = col_vals.quantile(0.70)
+                IQR = Q3 - Q1
+                iforest_bounds[col] = {
+                    "lower": Q1 - 1.5 * IQR,
+                    "upper": Q3 + 1.5 * IQR
+                }
+        except Exception as e:
+            # Print error but do not crash API, as in provided logs
+            print(f"Isolation Forest error: {e}")
             pass
 
+            
+    print(iforest_bounds)
+    # Combine both outlier masks
     mask = mask_iqr | mask_if
     flagged = df[mask].copy()
     flagged["__is_outlier_iqr"] = mask_iqr[mask]
     flagged["__is_outlier_iforest"] = mask_if[mask]
 
-    # Trim columns for UI readability if extremely wide
+    # Add information about which values are outliers
+    outlier_values = {}
+    for idx in flagged.index:
+        outlier_values[idx] = {}
+        # Check IQR outliers for each column
+        for c, bounds in iqr.items():
+            if c in df.columns and "lower" in bounds and "upper" in bounds:
+                val = df.loc[idx, c]
+                if not (isinstance(val, float) and (np.isnan(val) or np.isinf(val))):
+                    if val < bounds["lower"] or val > bounds["upper"]:
+                        outlier_values[idx][c] = "iqr"
+        # Check IForest outliers at row and column level, including upper/lower heuristic bounds
+        if idx in iforest_outlier_idxs:
+            for c in df.select_dtypes(include=[np.number]).columns:
+                if c in df.columns:
+                    val = df.loc[idx, c]
+                    # Only flag value if it is also out of bounds (heuristic) for iforest
+                    iForest_flagged = False
+                    if c in iforest_bounds:
+                        lower = iforest_bounds[c].get("lower", None)
+                        upper = iforest_bounds[c].get("upper", None)
+                        if lower is not None and upper is not None:
+                            if not (isinstance(val, float) and (np.isnan(val) or np.isinf(val))):
+                                if val < lower or val > upper:
+                                    iForest_flagged = True
+                    # If out of bounds, mark. Otherwise, only mark if row is outlier anyway.
+                    if iForest_flagged:  # fallback: always mark if IsolationForest flagged row
+                        existing = outlier_values[idx].get(c, "")
+                        outlier_values[idx][c] = (existing + ("iforest" if not existing else ",iforest"))
     cols = list(flagged.columns)
     if len(cols) > 18:
         cols = cols[:18]
@@ -494,6 +554,7 @@ def rows(dataset_id: Optional[str] = Query(default=None), limit: int = 100):
     return {
         "count": int(flagged.shape[0]),
         "columns": list(sample.columns),
+        "outlier_values": outlier_values,
         "rows": [
             {c: (0.0 if (isinstance(v, float) and (np.isnan(v) or np.isinf(v))) else v) for c, v in r.items()}
             for r in sample.to_dict(orient="records")
@@ -523,10 +584,11 @@ def summary(dataset_id: Optional[str] = Query(default=None)):
             iqr_row_mask |= (df[c] < b["lower"]) | (df[c] > b["upper"]) if c in df else False
     iqr_rows = int(iqr_row_mask.sum())
 
-    # Isolation Forest (optional)
+    # Isolation Forest (optional), now also calculate per-column anomaly hit counts
     if_rows = 0
     if_pct = 0.0
     if_note = None
+    iforest_per_column = []
     if SKLEARN and not df.select_dtypes(include=[np.number]).empty and len(df) >= 10:
         try:
             X = _safe_numeric(df)
@@ -535,10 +597,21 @@ def summary(dataset_id: Optional[str] = Query(default=None)):
             if_mask = (pred == -1)
             if_rows = int(if_mask.sum())
             if_pct = float(if_rows / len(X) * 100.0)
+            # For each column in X, count non-null and (optionally) extreme/flagged values among anomalies
+            flagged_idx = X.index[if_mask]
+            for col in X.columns:
+                flagged_nonnull = X.loc[flagged_idx, col].notnull().sum()
+                total_nonnull = X[col].notnull().sum()
+                iforest_per_column.append({
+                    "column": col,
+                    "count_in_flagged": int(flagged_nonnull),
+                    "total_nonnull": int(total_nonnull)
+                })
         except Exception as e:
             if_note = f"IsolationForest error: {e}"
     else:
         if_note = "IsolationForest unavailable (no sklearn or insufficient numeric data)."
+        iforest_per_column = []
 
     # Column dtypes & flags
     nunique = df.nunique(dropna=False)
@@ -560,7 +633,13 @@ def summary(dataset_id: Optional[str] = Query(default=None)):
             ],
             "n_rows_flagged": iqr_rows,
         },
-        "iforest": {"available": SKLEARN and if_note is None, "n_rows_flagged": if_rows, "pct_rows_flagged": round(if_pct, 2), "note": if_note},
+        "iforest": {
+            "available": SKLEARN and if_note is None,
+            "n_rows_flagged": if_rows,
+            "pct_rows_flagged": round(if_pct, 2),
+            "note": if_note,
+            "per_column": iforest_per_column,
+        },
         "columns": {
             "dtypes": {c: str(t) for c, t in df.dtypes.items()},
             "constants": constants,

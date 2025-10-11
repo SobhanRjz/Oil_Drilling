@@ -12,6 +12,24 @@
   --animation-ease: cubic-bezier(0.4, 0, 0.2, 1);
 }
 
+/* Logo Styles */
+.page-logo {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  object-fit: cover;
+  box-shadow: 0 0 20px rgba(243, 184, 58, 0.3);
+  transition: transform 0.3s ease;
+  z-index: 1000;
+}
+
+.page-logo:hover {
+  transform: scale(1.05);
+}
+
 /* Back Button Container */
 .back-button-container {
   position: fixed;
@@ -23,30 +41,42 @@
 .back-btn {
   display: flex;
   align-items: center;
-  gap: 8px;
-  background: var(--card);
+  gap: 10px;
+  background: linear-gradient(135deg, var(--card) 0%, rgba(31, 41, 55, 0.9) 100%);
   border: 1px solid var(--border);
   color: var(--text);
-  padding: 10px 16px;
-  border-radius: 8px;
+  padding: 12px 20px;
+  border-radius: 12px;
   font-size: 14px;
-  font-weight: 500;
+  font-weight: 600;
   cursor: pointer;
-  transition: all 0.3s var(--animation-ease);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   text-decoration: none;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3), 0 1px 3px rgba(0, 0, 0, 0.2);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
 }
 
 .back-btn:hover {
-  background: rgba(243, 184, 58, 0.1);
+  background: linear-gradient(135deg, rgba(243, 184, 58, 0.15) 0%, rgba(243, 184, 58, 0.1) 100%);
   border-color: var(--accent);
-  transform: translateX(-2px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  transform: translateX(-3px) scale(1.02);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4), 0 2px 8px rgba(243, 184, 58, 0.2);
+  color: var(--accent);
+}
+
+.back-btn:active {
+  transform: translateX(-2px) scale(0.98);
 }
 
 .back-icon {
-  font-size: 16px;
-  font-weight: 600;
+  font-size: 18px;
+  font-weight: 700;
+  transition: transform 0.3s ease;
+}
+
+.back-btn:hover .back-icon {
+  transform: translateX(-2px);
 }
 
 .back-text {
@@ -187,9 +217,9 @@ main {
 
 .kpi-grid {
   display: flex;
-  justify-content: space-between;
+  justify-content: center;
   align-items: flex-start;
-  gap: 32px;
+  gap: 36px;
   margin: 0;
   padding: 0 20px;
 }
@@ -200,7 +230,9 @@ main {
   padding: 0;
   transition: all 0.3s var(--animation-ease);
   text-align: center;
-  flex: 1;
+  flex: 0 0 auto;
+  max-width: 200px;
+  width: 100%;
   opacity: 0;
   transform: translateY(20px);
 }
@@ -447,11 +479,11 @@ main {
 }
 
 .chart-card:nth-child(1) .center-value {
-  color: var(--success);
+  color: #10b981; /* Green for completeness - positive/good */
 }
 
 .chart-card:nth-child(2) .center-value {
-  color: var(--warning);
+  color: #6366f1; /* Blue for uniqueness - neutral/informative */
 }
 
 .center-label {

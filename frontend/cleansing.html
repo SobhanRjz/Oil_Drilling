@@ -14,6 +14,9 @@
   <link rel="stylesheet" href="/static/css/cleansing.css"/>
 </head>
 <body>
+  <!-- Logo -->
+  <img src="/static/asset/Logo.jpg" alt="Drill DQ Logo" class="page-logo">
+
   <!-- Back button -->
   <div class="back-button-container">
     <button class="back-btn" onclick="window.location.href='/'">
@@ -59,39 +62,6 @@
   </nav>
 
   <main>
-    <!-- Title -->
-    <section class="main-title revealed">
-      <h2>Data Cleansing</h2>
-      <p>Select fixes, preview the impact, then apply.</p>
-    </section>
-
-    <!-- Issue Summary -->
-    <section class="issues-section revealed">
-      <div class="section-header">
-        <h3>What needs attention</h3>
-        <p>Quick snapshot of duplicates and missing values</p>
-      </div>
-      <div class="issues-grid">
-        <div class="issue-card" id="iss-rows">
-          <div class="issue-title">Rows</div>
-          <div class="issue-value"><span id="rowsCount">0</span></div>
-          <div class="issue-sub">Total rows detected</div>
-        </div>
-        <div class="issue-card" id="iss-dups">
-          <div class="issue-title">Duplicates</div>
-          <div class="issue-value danger"><span id="dupCount">0</span></div>
-          <div class="issue-sub">Potential duplicate rows</div>
-        </div>
-        <div class="issue-card" id="iss-missing">
-          <div class="issue-title">Missingness</div>
-          <div class="issue-value warning"><span id="missingPct">0</span>%</div>
-          <div class="issue-sub"><span id="colsWithMissing">0</span> columns have missing data</div>
-        </div>
-
-      </div>
-
-      <div class="suggestions" id="suggestions"></div>
-    </section>
 
     <!-- Actions -->
     <section class="actions-section revealed">

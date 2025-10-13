@@ -110,14 +110,14 @@ async def index(request: FastAPIRequest):
         raise HTTPException(status_code=404, detail="index.html not found in frontend/")
     return HTMLResponse(index_path.read_text(encoding="utf-8"))
 
-@app.get("/overview", response_class=HTMLResponse)
-async def overview_page(request: FastAPIRequest):
+@app.get("/general", response_class=HTMLResponse)
+async def general_page(request: FastAPIRequest):
     # Require auth before showing app
     _ = require_auth(request)
-    overview_path = FRONTEND_DIR / "overview.html"
-    if not overview_path.exists():
-        raise HTTPException(status_code=404, detail="overview.html not found in frontend/")
-    return HTMLResponse(overview_path.read_text(encoding="utf-8"))
+    general_path = FRONTEND_DIR / "general.html"
+    if not general_path.exists():
+        raise HTTPException(status_code=404, detail="general.html not found in frontend/")
+    return HTMLResponse(general_path.read_text(encoding="utf-8"))
 
 @app.get("/favicon.ico")
 def favicon():
@@ -220,11 +220,11 @@ def api_export(dataset_id: str):
     df.to_csv(out, index=False)
     return FileResponse(str(out), media_type="text/csv", filename=out.name)
 
-@app.get("/api/overview")
-def api_overview(dataset_id: str | None = None):
-    """Return comprehensive overview data from the uploaded CSV file."""
+@app.get("/api/general")
+def api_general(dataset_id: str | None = None):
+    """Return comprehensive general data from the uploaded CSV file."""
     import math
-    print(f"Overview API called with dataset_id: {dataset_id}")
+    print(f"General API called with dataset_id: {dataset_id}")
     print(f"Available datasets: {list(STORE.datasets.keys())}")
     
     try:
@@ -263,6 +263,8 @@ def api_overview(dataset_id: str | None = None):
     dq_score = 0.6 * completeness + 0.4 * uniqueness
     miss_by_col = (df.isna().sum() / max(rows,1)).to_dict()
     
+    print(f"Unique rows: {unique_rows}")
+    print(f"total rows: {len(df)}")
     # Column types analysis
     column_types = {}
     data_types_distribution = {}
@@ -301,16 +303,14 @@ def api_overview(dataset_id: str | None = None):
     columns_with_missing = int((missing_values > 0).sum())
     missing_percentage = (total_missing / cells * 100) if cells > 0 else 0.0
 
-    # Uniqueness statistics by column
-    uniqueness_by_column = {}
-    for col in df.columns:
-        total_values = len(df[col])
-        if total_values > 0:
-            unique_values = df[col].nunique(dropna=False)
-            uniqueness_pct = (unique_values / total_values) * 100
-            uniqueness_by_column[col] = float(uniqueness_pct)
-        else:
-            uniqueness_by_column[col] = 0.0
+    # Uniqueness statistics by row (not by column)
+    uniqueness_by_row = {}
+    if rows > 0:
+        # Check if each row is unique (not duplicated)
+        is_duplicate = df.duplicated()
+        print(f"Is duplicate: {is_duplicate}")
+        for idx in range(min(rows, 1000)):  # Limit to first 1000 rows for performance
+            uniqueness_by_row[str(idx)] = 0 if is_duplicate.iloc[idx] else 1
 
     return {
         "rows": rows,
@@ -318,7 +318,7 @@ def api_overview(dataset_id: str | None = None):
         "uniqueness": round(uniqueness, 1),
         "dq_score": round(dq_score, 1),
         "missingness_by_column": {k: float(v) for k,v in miss_by_col.items()},
-        "uniqueness_by_column": uniqueness_by_column,
+        "uniqueness_by_row": uniqueness_by_row,
         "column_types": column_types,
         "data_types_distribution": data_types_distribution,
         "missing_stats": {

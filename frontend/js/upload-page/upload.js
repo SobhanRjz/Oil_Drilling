@@ -733,7 +733,7 @@ function showExcelConversionProgress(datasetId) {
 
             // Redirect after a brief delay
             setTimeout(() => {
-                window.location.href = `/overview?dataset_id=${encodeURIComponent(datasetId)}`;
+                window.location.href = `/general?dataset_id=${encodeURIComponent(datasetId)}`;
             }, 1500);
         }
     }, 200);

@@ -5,13 +5,126 @@
     const el = (id) => document.getElementById(id);
     const nf = (n) => (n==null||Number.isNaN(n)? '—' : Number(n).toLocaleString());
     const pf = (p) => (p==null||Number.isNaN(p)? '—' : `${Number(p).toFixed(2)}%`);
-  
+
+    let currentActiveSection = null;
+
+    // Action elements
+    const actionEls = {
+      // toggles
+      tOutlier: el('toggleOutlierAction'),
+      tUnit: el('toggleUnitAction'),
+      tSensor: el('toggleSensorAction'),
+      // selects
+      outlierMethod: el('outlierMethod'),
+      unitStandard: el('unitStandard'),
+      sensorAction: el('sensorAction'),
+      // buttons
+      btnApplyAnomalies: el('btnApplyAnomalies'),
+    };
+
     init();
   
     async function init(){
       if (!dataset_id){ console.warn('No dataset_id provided; attempting latest on server'); }
+      setupCardClickHandlers();
+      setupActionEventListeners();
       await loadSummary();
       await loadRows();
+    }
+
+    function setupActionEventListeners() {
+      // Action buttons
+      actionEls.btnApplyAnomalies.addEventListener('click', handleAnomalyApply);
+    }
+
+    function getAnomalyActionsFromUI() {
+      return {
+        outlier_handling: actionEls.tOutlier.checked ? {
+          method: actionEls.outlierMethod.value
+        } : null,
+        unit_standardization: actionEls.tUnit.checked ? {
+          standard: actionEls.unitStandard.value
+        } : null,
+        sensor_reliability: actionEls.tSensor.checked ? {
+          action_type: actionEls.sensorAction.value
+        } : null
+      };
+    }
+
+
+    async function handleAnomalyApply() {
+      const payload = {
+        dataset_id,
+        actions: getAnomalyActionsFromUI(),
+        dry_run: false
+      };
+
+      actionEls.btnApplyAnomalies.disabled = true;
+      actionEls.btnApplyAnomalies.innerHTML = '<span>Applying...</span><div class="btn-icon">⏳</div>';
+
+      try {
+        // For now, simulate the API response
+        await new Promise(resolve => setTimeout(resolve, 2000)); // Simulate API delay
+
+        // Redirect to export page on success
+        window.location.href = `/export?dataset_id=${encodeURIComponent(dataset_id)}`;
+
+      } catch(err) {
+        console.error('Apply error', err);
+        alert('Apply failed. Check console.');
+      } finally {
+        actionEls.btnApplyAnomalies.disabled = false;
+        actionEls.btnApplyAnomalies.innerHTML = '<span>Apply & Continue to Export</span><div class="btn-icon">→</div>';
+      }
+    }
+
+
+    function setupCardClickHandlers() {
+      const buttons = document.querySelectorAll('.view-details-btn');
+      buttons.forEach(btn => {
+        btn.addEventListener('click', function() {
+          const target = this.getAttribute('data-target');
+          toggleDetailsSection(target, this);
+        });
+      });
+    }
+
+    function toggleDetailsSection(target, button) {
+      const detailsSection = document.getElementById(`${target}Details`);
+      const card = button.closest('.anomaly-card');
+      
+      // If clicking the same section, close it
+      if (currentActiveSection === target) {
+        detailsSection.style.display = 'none';
+        detailsSection.classList.remove('show');
+        button.classList.remove('active');
+        card.classList.remove('active');
+        currentActiveSection = null;
+      } else {
+        // Close all sections
+        document.querySelectorAll('.details-section').forEach(section => {
+          section.style.display = 'none';
+          section.classList.remove('show');
+        });
+        
+        // Remove active state from all buttons and cards
+        document.querySelectorAll('.view-details-btn').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.anomaly-card').forEach(c => c.classList.remove('active'));
+        
+        // Open the selected section
+        detailsSection.style.display = 'block';
+        setTimeout(() => {
+          detailsSection.classList.add('show');
+        }, 10);
+        button.classList.add('active');
+        card.classList.add('active');
+        currentActiveSection = target;
+        
+        // Scroll to the details section smoothly
+        setTimeout(() => {
+          detailsSection.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }, 100);
+      }
     }
   
     async function loadSummary(){
@@ -27,7 +140,11 @@
         // el('kpiDup').textContent = `3.4`;
         el('kpiIqr').textContent = nf(data.outliers?.n_rows_flagged);
         
-        // Note: kpiIF element doesn't exist in HTML, removing this line
+        // Update card badges
+        const totalOutliers = (data.outliers?.n_rows_flagged || 0) + (data.iforest?.n_rows_flagged || 0);
+        el('outlierCount').textContent = nf(totalOutliers);
+        el('unitCount').textContent = nf(3); // Fake value for unit standardization issues
+        el('sensorCount').textContent = nf(7); // Fake value for sensor reliability issues
         
         // Missingness table
         const missEntries = Object.entries(data.missing?.by_column || {}).sort((a,b)=>b[1]-a[1]);
@@ -81,9 +198,54 @@
         // Dtypes & constants
         const dtypes = Object.entries(data.columns?.dtypes || {}).map(([k,v])=>({column:k, dtype:v}));
         el('schemaTable').innerHTML = toTable(dtypes, ['column','dtype']);
-        const constants = data.columns?.constants || [];
-        el('constCols').innerHTML = constants.length ? constants.map(c => pill(c)).join('') : '<span class="muted">None</span>';
-  
+
+        // Populate Unit Standardization section with fake data
+        el('kpiUnits').textContent = nf(3);
+        el('kpiConversions').textContent = nf(2);
+        el('unitPills').innerHTML = [
+          pill('Temperature units mixed (C/F)', 'warn'),
+          pill('Pressure units inconsistent', 'warn'),
+          pill('Depth measurements varied', 'info')
+        ].join('');
+        el('conversionPills').innerHTML = [
+          pill('Convert all temps to Celsius', 'info'),
+          pill('Standardize pressure to PSI', 'info')
+        ].join('');
+        el('unitAnalysisTable').innerHTML = toTable([
+          {column: 'Temperature', unit_variations: 'Celsius, Fahrenheit', recommended: 'Celsius'},
+          {column: 'Pressure', unit_variations: 'PSI, Bar, MPa', recommended: 'PSI'},
+          {column: 'Depth', unit_variations: 'Feet, Meters', recommended: 'Meters'}
+        ], ['column', 'unit_variations', 'recommended']);
+
+        // Populate Sensor Reliability section with fake data
+        el('kpiActiveSensors').textContent = nf(15);
+        el('kpiFlaggedSensors').textContent = nf(7);
+        el('sensorPills').innerHTML = [
+          pill('15 sensors active', 'success'),
+          pill('98.2% uptime', 'success'),
+          pill('Temperature sensor #1', 'info'),
+          pill('Pressure sensor #2', 'info'),
+          pill('Depth sensor #3', 'info')
+        ].join('');
+        el('sensorIssuePills').innerHTML = [
+          pill('Temp sensor #1: Drift detected', 'warn'),
+          pill('Pressure #2: Intermittent failure', 'danger'),
+          pill('Depth #3: Calibration needed', 'warn'),
+          pill('Temp sensor #4: Out of range', 'danger'),
+          pill('Pressure #5: Signal loss', 'warn'),
+          pill('Depth #6: Noise interference', 'info'),
+          pill('Temp sensor #7: Battery low', 'warn')
+        ].join('');
+        el('sensorReliabilityTable').innerHTML = toTable([
+          {sensor: 'Temperature #1', status: 'Drift', reliability: '85%', last_calibrated: '2024-09-15'},
+          {sensor: 'Pressure #2', status: 'Intermittent', reliability: '72%', last_calibrated: '2024-08-20'},
+          {sensor: 'Depth #3', status: 'Calibration', reliability: '91%', last_calibrated: '2024-10-01'},
+          {sensor: 'Temperature #4', status: 'Out of range', reliability: '45%', last_calibrated: '2024-07-30'},
+          {sensor: 'Pressure #5', status: 'Signal loss', reliability: '68%', last_calibrated: '2024-09-05'},
+          {sensor: 'Depth #6', status: 'Noise', reliability: '89%', last_calibrated: '2024-10-10'},
+          {sensor: 'Temperature #7', status: 'Battery low', reliability: '76%', last_calibrated: '2024-08-15'}
+        ], ['sensor', 'status', 'reliability', 'last_calibrated']);
+
       } catch(e){
         console.error('Summary error', e);
         injectError('Failed to load anomalies summary.');
@@ -140,6 +302,7 @@
     const pill = (text, cls='') => `<span class="pill ${cls}">${esc(text)}</span>`;
     const badge = (text) => `<span class="badge">${esc(text)}</span>`;
     const esc = (s) => (s==null? '': String(s)).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+    const escapeHTML = esc; // Alias for consistency
     function injectError(msg){
       const b = document.createElement('div');
       b.className = 'error-banner';

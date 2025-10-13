@@ -6,9 +6,9 @@
   <title>Drill DQ · Export</title>
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-  <!-- Global styles + overview shared components -->
+  <!-- Global styles + general shared components -->
   <link rel="stylesheet" href="/static/css/style.css"/>
-  <link rel="stylesheet" href="/static/css/overview.css"/>
+  <link rel="stylesheet" href="/static/css/general.css"/>
   <link rel="stylesheet" href="/static/css/stepper.css"/>
   <!-- Page specific -->
   <link rel="stylesheet" href="/static/css/export.css"/>
@@ -21,19 +21,19 @@
   <div class="back-button-container">
     <button class="back-btn" onclick="window.location.href='/anomalies'">
       <span class="back-icon">←</span>
-      <span class="back-text">Back to Anomalies</span>
+      <span class="back-text">Back to AI Analysis</span>
     </button>
   </div>
 
   <!-- Modern Stepper -->
   <nav class="modern-stepper" data-progress="100" role="navigation" aria-label="Data quality process steps">
     <div class="step-item completed" role="listitem">
-      <div class="step-bubble" aria-label="Step 1: Overview - Completed">
+      <div class="step-bubble" aria-label="Step 1: general - Completed">
         <svg class="step-icon" viewBox="0 0 24 24" aria-hidden="true">
           <path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z"/>
         </svg>
       </div>
-      <div class="step-label">Overview</div>
+      <div class="step-label">general</div>
     </div>
     <div class="step-item completed" role="listitem">
       <div class="step-bubble" aria-label="Step 2: Cleansing - Completed">
@@ -44,12 +44,12 @@
       <div class="step-label">Cleansing</div>
     </div>
     <div class="step-item completed" role="listitem">
-      <div class="step-bubble" aria-label="Step 3: Anomalies - Completed">
+      <div class="step-bubble" aria-label="Step 3: AI Analysis - Completed">
         <svg class="step-icon" viewBox="0 0 24 24" aria-hidden="true">
           <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
         </svg>
       </div>
-      <div class="step-label">Anomalies</div>
+      <div class="step-label">AI Analysis</div>
     </div>
     <div class="step-item active" role="listitem" aria-current="step">
       <div class="step-bubble" aria-label="Step 4: Export - Current step">

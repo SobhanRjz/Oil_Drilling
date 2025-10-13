@@ -5,11 +5,9 @@
 
   const els = {
     dedupSubset: document.getElementById('dedupSubset'),
-    stdPreview: document.getElementById('stdPreview'),
     missingCols: document.getElementById('missingCols'),
     // toggles
     tDedup: document.getElementById('toggleDedup'),
-    tStd: document.getElementById('toggleStandardize'),
     tImp: document.getElementById('toggleImpute'),
     // buttons
     btnReset: document.getElementById('btnReset'),
@@ -42,10 +40,6 @@
       const cols = data.columns || [];
       els.dedupSubset.innerHTML = cols.map(c => `<option value="${escapeHTML(c)}">${escapeHTML(c)}</option>`).join('');
 
-      // Fill standardization preview
-      if (data.standardization_targets) {
-        els.stdPreview.innerHTML = data.standardization_targets.map(t => `<li>${escapeHTML(t)}</li>`).join('');
-      }
 
       // Missing columns list
       const missingCols = Object.entries(data.missing_by_column || {})
@@ -70,7 +64,6 @@
     const subset = Array.from(els.dedupSubset.selectedOptions).map(o => o.value);
     return {
       deduplicate: els.tDedup.checked ? { subset } : null,
-      standardize: els.tStd.checked ? {} : null,
       impute: els.tImp.checked ? {} : null
     };
   }
@@ -142,13 +135,12 @@
       alert('Apply failed. Check console.');
     } finally {
       els.btnApply.disabled = false;
-      els.btnApply.innerHTML = '<span>Apply & Continue to Anomalies</span><div class="btn-icon">→</div>';
+      els.btnApply.innerHTML = '<span>Apply & Continue to AI Analysis</span><div class="btn-icon">→</div>';
     }
   }
 
   function resetActions(){
     els.tDedup.checked = true;
-    els.tStd.checked = true;
     els.tImp.checked = true;
     Array.from(els.dedupSubset.options).forEach(o => o.selected = false);
     els.previewSection.classList.add('hidden');

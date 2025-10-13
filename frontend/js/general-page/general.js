@@ -11,7 +11,7 @@
   }
 
   // Fetch and display data with animations
-  fetchOverviewData(dataset_id);
+  fetchgeneralData(dataset_id);
 
   // Event listeners
   document.getElementById('nextBtn').addEventListener('click', handleNextStep);
@@ -140,12 +140,12 @@
     });
   }
 
-  async function fetchOverviewData(dataset_id) {
+  async function fetchgeneralData(dataset_id) {
     try {
-      console.log('Fetching overview data for dataset_id:', dataset_id);
-      const response = await fetch(`/api/overview?dataset_id=${encodeURIComponent(dataset_id || '')}`);
+      console.log('Fetching general data for dataset_id:', dataset_id);
+      const response = await fetch(`/api/general?dataset_id=${encodeURIComponent(dataset_id || '')}`);
       const data = await response.json();
-      console.log('Overview API response:', data);
+      console.log('general API response:', data);
       
       // Check if we have any real data
       if (data.rows === 0 && !dataset_id) {
@@ -160,7 +160,7 @@
         comp: data.completeness ?? 0,
         uniq: data.uniqueness ?? 0,
         missingData: data.missingness_by_column || {},
-        uniquenessData: data.uniqueness_by_column || {},
+        uniquenessData: data.uniqueness_by_row || {},
         columnTypes: data.column_types || {},
         dataTypesDistribution: data.data_types_distribution || {},
         missingStats: data.missing_stats || {}
@@ -170,7 +170,7 @@
       await animateDataUpdate(data);
       
     } catch (error) {
-      console.error('Error fetching overview data:', error);
+      console.error('Error fetching general data:', error);
       showErrorState();
     }
   }
@@ -183,7 +183,7 @@
       mainTitle.style.color = '#f59e0b';
     }
     
-    // Disable the "Show More Overview" button
+    // Disable the "Show More general" button
     const showMoreBtn = document.getElementById('showMoreBtn');
     if (showMoreBtn) {
       showMoreBtn.disabled = true;
@@ -422,78 +422,130 @@
   }
 
   function renderUniquenessDataChart(uniquenessData) {
-    const labels = Object.keys(uniquenessData);
-    const uniquenessValues = Object.values(uniquenessData).map(v => Math.round(v * 10) / 10);
-    // Convert uniqueness to duplicates percentage (100 - uniqueness)
-    const values = uniquenessValues.map(v => Math.round((100 - v) * 10) / 10);
+    // Count unique and duplicate rows
+    let uniqueCount = 0;
+    let duplicateCount = 0;
 
-    // Sort by duplicates percentage (descending - highest duplicates first)
-    const sortedData = labels.map((label, index) => ({
-      label,
-      value: values[index]
-    })).sort((a, b) => b.value - a.value);
+    Object.values(uniquenessData).forEach(isUnique => {
+      if (isUnique === 1) {
+        uniqueCount++;
+      } else {
+        duplicateCount++;
+      }
+    });
 
-    const sortedLabels = sortedData.map(item => item.label);
-    const sortedValues = sortedData.map(item => item.value);
+    const totalRows = uniqueCount + duplicateCount;
+    const uniquePercentage = totalRows > 0 ? ((uniqueCount / totalRows) * 100).toFixed(1) : 0;
+    const duplicatePercentage = totalRows > 0 ? ((duplicateCount / totalRows) * 100).toFixed(1) : 0;
 
+    // Create modern donut chart
     new Chart(document.getElementById('uniqBar'), {
-      type: 'bar',
+      type: 'doughnut',
       data: {
-        labels: sortedLabels,
+        labels: ['Unique Rows', 'Duplicate Rows'],
         datasets: [{
-          label: 'Duplicates %',
-          data: sortedValues,
-          backgroundColor: '#f59e0b',
-          borderColor: '#f59e0b',
-          borderWidth: 1,
-          borderRadius: 4,
-          borderSkipped: false
+          data: [uniqueCount, duplicateCount],
+          backgroundColor: [
+            '#10b981', // Green for unique
+            '#ef4444'  // Red for duplicates
+          ],
+          borderColor: [
+            '#059669',
+            '#dc2626'
+          ],
+          borderWidth: 3,
+          hoverBorderWidth: 5,
+          hoverOffset: 8,
+          cutout: '70%', // Creates donut effect
+          spacing: 2
         }]
       },
       options: {
         responsive: true,
         maintainAspectRatio: false,
-        plugins: {
-          legend: { display: false },
-          tooltip: {
-            backgroundColor: 'rgba(0, 0, 0, 0.8)',
-            titleColor: '#fff',
-            bodyColor: '#fff',
-            borderColor: 'rgba(255, 255, 255, 0.1)',
-            borderWidth: 1,
-            cornerRadius: 8,
-            displayColors: false
+        layout: {
+          padding: {
+            top: 20,
+            bottom: 20,
+            left: 20,
+            right: 20
           }
         },
-        scales: {
-          y: {
-            beginAtZero: true,
-            max: 100,
-            ticks: {
-              callback: function(value) {
-                return value + '%';
+        plugins: {
+          legend: {
+            display: true,
+            position: 'bottom',
+            labels: {
+              color: '#e9efff',
+              padding: 20,
+              font: {
+                size: 14,
+                weight: '500'
               },
-              color: '#94a3b8'
-            },
-            grid: {
-              color: 'rgba(148, 163, 184, 0.1)'
+              generateLabels: function(chart) {
+                const data = chart.data;
+                if (!data || !data.datasets || !data.datasets[0]) return [];
+                return data.labels.map((label, index) => ({
+                  text: `${label}: ${data.datasets[0].data[index]?.toLocaleString() || 0} (${index === 0 ? uniquePercentage : duplicatePercentage}%)`,
+                  fillStyle: data.datasets[0].backgroundColor[index],
+                  strokeStyle: data.datasets[0].borderColor[index],
+                  lineWidth: 2,
+                  hidden: false,
+                  index: index,
+                  fontColor: '#e9efff' // White text color
+                }));
+              }
             }
           },
-          x: {
-            ticks: {
-              color: '#94a3b8',
-              maxRotation: 45
-            },
-            grid: {
-              display: false
+          tooltip: {
+            backgroundColor: 'rgba(15, 23, 42, 0.95)',
+            titleColor: '#e9efff',
+            bodyColor: '#e9efff',
+            borderColor: 'rgba(243, 184, 58, 0.3)',
+            borderWidth: 1,
+            cornerRadius: 12,
+            displayColors: true,
+            callbacks: {
+              label: function(context) {
+                const label = context.label || '';
+                const value = context.raw || 0;
+                const percentage = context.dataIndex === 0 ? uniquePercentage : duplicatePercentage;
+                return `${label}: ${value.toLocaleString()} (${percentage}%)`;
+              }
             }
           }
         },
         animation: {
-          duration: 1000,
+          animateScale: true,
+          animateRotate: true,
+          duration: 1500,
           easing: 'easeOutQuart'
         }
-      }
+      },
+        plugins: [{
+          id: 'centerText',
+          beforeDraw: function(chart) {
+            const { width, height, ctx } = chart;
+            ctx.save();
+
+            const centerX = width / 2;
+            const centerY = height / 2;
+
+            // Draw main number (total rows)
+            ctx.font = 'bold 28px Inter, sans-serif';
+            ctx.fillStyle = '#e9efff';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText(totalRows.toLocaleString(), centerX, centerY - 30);
+
+            // Draw subtext
+            ctx.font = '14px Inter, sans-serif';
+            ctx.fillStyle = '#94a3b8';
+            ctx.fillText('Total Rows', centerX, centerY );
+
+            ctx.restore();
+          }
+        }]
     });
   }
 
@@ -721,12 +773,19 @@
 
   function updateMissingStats(missingData) {
     const missingStats = window.chartData?.missingStats || {};
+    const uniquenessData = window.chartData?.uniquenessData || {};
     
     // Update the stats with real data
     document.getElementById('totalMissing').textContent = missingStats.total_missing || 0;
     document.getElementById('columnsWithMissing').textContent = missingStats.columns_with_missing || 0;
     document.getElementById('missingPercentage').textContent = (missingStats.missing_percentage || 0) + '%';
-    document.getElementById('totalDuplicates').textContent = missingStats.columns_with_missing || 0;
+    // Count total number of duplicate rows (where value is 0) in uniquenessData
+    if (uniquenessData && typeof uniquenessData === 'object') {
+      const totalDuplicates = Object.values(uniquenessData).reduce((acc, val) => acc + (val === 0 ? 1 : 0), 0);
+      document.getElementById('totalDuplicates').textContent = totalDuplicates;
+    } else {
+      document.getElementById('totalDuplicates').textContent = 0;
+    }
   }
 
   // Add CSS animations dynamically

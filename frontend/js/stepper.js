@@ -132,7 +132,7 @@ class ModernStepper {
   }
 
   handleStepNavigation(stepIndex) {
-    const stepUrls = ['/', '/overview', '/cleansing', '/anomalies', '/export'];
+    const stepUrls = ['/', '/general', '/cleansing', '/anomalies', '/export'];
     const currentUrl = window.location.pathname;
 
     // Only navigate if we're not already on the target page

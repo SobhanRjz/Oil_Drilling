@@ -107,7 +107,7 @@ def preview(dataset_id: Optional[str] = Query(default=None)):
     # Stats
     dups = _duplicates_count(df)
     miss = _missing_by_column(df)
-    # Calculate overall missing percentage (same as overview/anomalies)
+    # Calculate overall missing percentage (same as general/anomalies)
     total_cells = int(df.shape[0] * df.shape[1])
     total_missing = int(df.isna().sum().sum())
     miss_pct = (total_missing / total_cells * 100.0) if total_cells else 0.0

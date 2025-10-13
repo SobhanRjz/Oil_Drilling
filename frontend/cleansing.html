@@ -6,9 +6,9 @@
   <title>Drill DQ · Cleansing</title>
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-  <!-- Global styles + overview shared components -->
+  <!-- Global styles + general shared components -->
   <link rel="stylesheet" href="/static/css/style.css"/>
-  <link rel="stylesheet" href="/static/css/overview.css"/>
+  <link rel="stylesheet" href="/static/css/general.css"/>
   <link rel="stylesheet" href="/static/css/stepper.css"/>
   <!-- Page specific -->
   <link rel="stylesheet" href="/static/css/cleansing.css"/>
@@ -28,12 +28,12 @@
   <!-- Modern Stepper -->
   <nav class="modern-stepper" data-progress="50" role="navigation" aria-label="Data quality process steps">
     <div class="step-item completed" role="listitem">
-      <div class="step-bubble" aria-label="Step 1: Overview - Completed">
+      <div class="step-bubble" aria-label="Step 1: General - Completed">
         <svg class="step-icon" viewBox="0 0 24 24" aria-hidden="true">
           <path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z"/>
         </svg>
       </div>
-      <div class="step-label">Overview</div>
+      <div class="step-label">General</div>
     </div>
     <div class="step-item active" role="listitem" aria-current="step">
       <div class="step-bubble" aria-label="Step 2: Cleansing - Current step">
@@ -44,12 +44,12 @@
       <div class="step-label">Cleansing</div>
     </div>
     <div class="step-item" role="listitem">
-      <div class="step-bubble" aria-label="Step 3: Anomalies">
+      <div class="step-bubble" aria-label="Step 3: AI Analysis">
         <svg class="step-icon" viewBox="0 0 24 24" aria-hidden="true">
           <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
         </svg>
       </div>
-      <div class="step-label">Anomalies</div>
+      <div class="step-label">AI Analysis</div>
     </div>
     <div class="step-item" role="listitem">
       <div class="step-bubble" aria-label="Step 4: Export">
@@ -88,23 +88,6 @@
               <select id="dedupSubset" multiple aria-label="Deduplicate subset columns"></select>
             </div>
             <div class="hint">Tip: choose ID-like columns for faster, precise duplicate removal.</div>
-          </div>
-        </div>
-
-        <!-- Standardize -->
-        <div class="action-card" data-action="standardize">
-          <div class="action-head">
-            <label class="switch">
-              <input type="checkbox" id="toggleStandardize" checked>
-              <span class="slider"></span>
-            </label>
-            <h4>Standardize aliases & units</h4>
-            <p>Map column aliases and convert units (e.g., <code>pressure_psi→pressure_bar</code>).</p>
-          </div>
-          <div class="action-body">
-            <ul class="tiny-list" id="stdPreview">
-              <!-- filled from server: alias targets & unit targets -->
-            </ul>
           </div>
         </div>
 
@@ -172,7 +155,7 @@
           <div class="btn-icon">↑</div>
         </button>
         <button class="primary-btn" id="btnApply">
-          <span>Apply & Continue to Anomalies</span>
+          <span>Apply & Continue to AI Analysis</span>
           <div class="btn-icon">→</div>
         </button>
       </div>

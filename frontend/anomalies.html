@@ -6,9 +6,9 @@
   <title>Drill DQ · Anomalies</title>
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-  <!-- Global styles + overview shared components -->
+  <!-- Global styles + general shared components -->
   <link rel="stylesheet" href="/static/css/style.css"/>
-  <link rel="stylesheet" href="/static/css/overview.css"/>
+  <link rel="stylesheet" href="/static/css/general.css"/>
   <link rel="stylesheet" href="/static/css/stepper.css"/>
   <!-- Page specific -->
   <link rel="stylesheet" href="/static/css/anomalies.css"/>
@@ -28,12 +28,12 @@
   <!-- Modern Stepper -->
   <nav class="modern-stepper" data-progress="75" role="navigation" aria-label="Data quality process steps">
     <div class="step-item completed" role="listitem">
-      <div class="step-bubble" aria-label="Step 1: Overview - Completed">
+      <div class="step-bubble" aria-label="Step 1: general - Completed">
         <svg class="step-icon" viewBox="0 0 24 24" aria-hidden="true">
           <path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z"/>
         </svg>
       </div>
-      <div class="step-label">Overview</div>
+      <div class="step-label">general</div>
     </div>
     <div class="step-item completed" role="listitem">
       <div class="step-bubble" aria-label="Step 2: Cleansing - Completed">
@@ -44,12 +44,12 @@
       <div class="step-label">Cleansing</div>
     </div>
     <div class="step-item active" role="listitem" aria-current="step">
-      <div class="step-bubble" aria-label="Step 3: Anomalies - Current step">
+      <div class="step-bubble" aria-label="Step 3: AI Analysis - Current step">
         <svg class="step-icon" viewBox="0 0 24 24" aria-hidden="true">
           <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
         </svg>
       </div>
-      <div class="step-label">Anomalies</div>
+      <div class="step-label">AI Analysis</div>
     </div>
     <div class="step-item" role="listitem">
       <div class="step-bubble" aria-label="Step 4: Export">
@@ -62,9 +62,100 @@
   </nav>
 
   <main>
-    <!-- Outlier Detection -->
-    <section class="actions-section revealed">
+    <!-- Main Anomaly Cards Section -->
+    <section class="anomaly-cards-section revealed">
       <div class="section-header">
+        <h3>Anomaly Detection & Analysis</h3>
+        <p>Comprehensive data quality checks across multiple dimensions</p>
+      </div>
+
+      <div class="anomaly-cards-grid">
+        <!-- Card 1: Outlier Detection -->
+        <div class="anomaly-card" data-card="outlier">
+          <div class="anomaly-card-header">
+            <div class="anomaly-card-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"/>
+                <circle cx="12" cy="12" r="3"/>
+              </svg>
+            </div>
+            <div class="anomaly-card-content">
+              <h4>Outlier Detection</h4>
+              <p>Identify statistical anomalies and extreme values in your data</p>
+            </div>
+            <div class="anomaly-card-badge">
+              <span id="outlierCount">0</span>
+            </div>
+          </div>
+          <div class="anomaly-card-footer">
+            <button class="view-details-btn" data-target="outlier">
+              <span>View Details</span>
+              <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="6 9 12 15 18 9"/>
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        <!-- Card 2: Unit Standardization -->
+        <div class="anomaly-card" data-card="unit">
+          <div class="anomaly-card-header">
+            <div class="anomaly-card-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M3 3h7v7H3zM14 3h7v7h-7zM14 14h7v7h-7zM3 14h7v7H3z"/>
+              </svg>
+            </div>
+            <div class="anomaly-card-content">
+              <h4>Unit Standardization</h4>
+              <p>Detect and flag inconsistent units and measurement scales</p>
+            </div>
+            <div class="anomaly-card-badge">
+              <span id="unitCount">0</span>
+            </div>
+          </div>
+          <div class="anomaly-card-footer">
+            <button class="view-details-btn" data-target="unit">
+              <span>View Details</span>
+              <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="6 9 12 15 18 9"/>
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        <!-- Card 3: Sensor Reliability -->
+        <div class="anomaly-card" data-card="sensor">
+          <div class="anomaly-card-header">
+            <div class="anomaly-card-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M12 2v6m0 8v6M2 12h6m8 0h6m-2.636-6.364l-4.243 4.243m0 8.485l4.243 4.243M6.343 6.343l4.243 4.243m0 8.485l-4.243 4.243"/>
+              </svg>
+            </div>
+            <div class="anomaly-card-content">
+              <h4>Sensor Reliability</h4>
+              <p>Assess sensor performance and detect malfunctions or drift</p>
+            </div>
+            <div class="anomaly-card-badge">
+              <span id="sensorCount">0</span>
+            </div>
+          </div>
+          <div class="anomaly-card-footer">
+            <button class="view-details-btn" data-target="sensor">
+              <span>View Details</span>
+              <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="6 9 12 15 18 9"/>
+              </svg>
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Details Sections (Hidden by default) -->
+    
+    <!-- Outlier Detection Details -->
+    <section id="outlierDetails" class="details-section" style="display: none;">
+      <div class="details-header">
         <h3>Outlier Detection Results</h3>
         <p>Statistical and machine learning-based anomaly detection</p>
       </div>
@@ -108,23 +199,14 @@
           </div>
         </div>
       </div>
-    </section>
 
     <!-- Data Quality Analysis -->
-    <section class="preview-section revealed">
-      <div class="section-header">
-        <h3>Data Quality Analysis</h3>
-        <p>Detailed breakdown of missing values and column characteristics</p>
-      </div>
-
       <div class="analysis-grid">
-        <!-- Missing Data by Column -->
         <div class="analysis-card">
           <h4>Outlier Data by Column</h4>
           <div id="missingTable" class="table-wrap"></div>
         </div>
 
-        <!-- Schema Information -->
         <div class="analysis-card">
           <h4>Schema & Data Types</h4>
           <div id="schemaTable" class="table-wrap"></div>
@@ -137,8 +219,240 @@
         <p>Sample of rows flagged as anomalies (limited to 100 rows)</p>
         <div id="flagTable" class="table-wrap scroll"></div>
       </div>
+    </section>
 
+    <!-- Unit Standardization Details -->
+    <section id="unitDetails" class="details-section" style="display: none;">
+      <div class="details-header">
+        <h3>Unit Standardization Analysis</h3>
+        <p>Identifying and flagging inconsistent measurement units</p>
+      </div>
 
+      <div class="action-grid">
+        <div class="action-card">
+          <div class="action-head">
+            <div class="action-icon">📏</div>
+            <div>
+              <h4>Unit Consistency Check</h4>
+              <p>Detect mixed units within the same measurement type</p>
+            </div>
+          </div>
+          <div class="action-body">
+            <div class="kpi-row">
+              <span class="kpi-label">Units Detected:</span>
+              <span id="kpiUnits" class="kpi-value">0</span>
+            </div>
+            <div id="unitPills" class="pill-row"></div>
+          </div>
+        </div>
+
+        <div class="action-card">
+          <div class="action-head">
+            <div class="action-icon">🔄</div>
+            <div>
+              <h4>Conversion Recommendations</h4>
+              <p>Suggested standardization for detected unit variations</p>
+            </div>
+          </div>
+          <div class="action-body">
+            <div class="kpi-row">
+              <span class="kpi-label">Suggestions:</span>
+              <span id="kpiConversions" class="kpi-value">0</span>
+            </div>
+            <div id="conversionPills" class="pill-row"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="analysis-card">
+        <h4>Unit Analysis Details</h4>
+        <div id="unitAnalysisTable" class="table-wrap"></div>
+      </div>
+    </section>
+
+    <!-- Sensor Reliability Details -->
+    <section id="sensorDetails" class="details-section" style="display: none;">
+      <div class="details-header">
+        <h3>Sensor Reliability Assessment</h3>
+        <p>Evaluating sensor performance and detecting potential issues</p>
+      </div>
+
+      <div class="action-grid">
+        <div class="action-card">
+          <div class="action-head">
+            <div class="action-icon">⚡</div>
+            <div>
+              <h4>Sensor Performance</h4>
+              <p>Overall health and operational status of sensors</p>
+            </div>
+          </div>
+          <div class="action-body">
+            <div class="kpi-row">
+              <span class="kpi-label">Active Sensors:</span>
+              <span id="kpiActiveSensors" class="kpi-value">0</span>
+            </div>
+            <div id="sensorPills" class="pill-row"></div>
+          </div>
+        </div>
+
+        <div class="action-card">
+          <div class="action-head">
+            <div class="action-icon">⚠️</div>
+            <div>
+              <h4>Anomaly Indicators</h4>
+              <p>Sensors showing signs of drift or malfunction</p>
+            </div>
+          </div>
+          <div class="action-body">
+            <div class="kpi-row">
+              <span class="kpi-label">Flagged Sensors:</span>
+              <span id="kpiFlaggedSensors" class="kpi-value">0</span>
+            </div>
+            <div id="sensorIssuePills" class="pill-row"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="analysis-card">
+        <h4>Sensor Reliability Metrics</h4>
+        <div id="sensorReliabilityTable" class="table-wrap"></div>
+      </div>
+    </section>
+
+    <!-- Section Divider -->
+    <div class="section-divider">
+      <div class="divider-line"></div>
+      <div class="divider-content">
+        <span class="divider-text">Analysis Complete → Take Action</span>
+        <svg class="divider-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M7 17l10-10M7 7h10v10"/>
+        </svg>
+      </div>
+      <div class="divider-line"></div>
+    </div>
+
+    <!-- Anomaly Actions -->
+    <section class="actions-section revealed" id="actionsSection">
+      <div class="section-header action-section-header">
+        <h3>Choose Anomaly Actions</h3>
+        <p>Select and configure actions to address the detected anomalies in your data.</p>
+      </div>
+
+      <div class="action-grid">
+
+        <!-- Outlier Detection Action -->
+        <div class="action-card" data-action="outlier">
+          <div class="action-head">
+            <label class="switch">
+              <input type="checkbox" id="toggleOutlierAction" checked>
+              <span class="slider"></span>
+            </label>
+            <h4>Handle outliers</h4>
+            <p>Remove or flag statistical outliers and anomalies</p>
+          </div>
+          <div class="action-body">
+            <div class="form-row">
+              <label for="outlierMethod">Method</label>
+              <select id="outlierMethod" aria-label="Outlier handling method">
+                <option value="remove">Remove outliers</option>
+                <option value="flag">Flag with column</option>
+                <option value="cap">Cap extreme values</option>
+              </select>
+            </div>
+            <div class="hint">Choose how to handle detected outliers in your dataset.</div>
+          </div>
+        </div>
+
+        <!-- Unit Standardization Action -->
+        <div class="action-card" data-action="unit">
+          <div class="action-head">
+            <label class="switch">
+              <input type="checkbox" id="toggleUnitAction" checked>
+              <span class="slider"></span>
+            </label>
+            <h4>Standardize units</h4>
+            <p>Standardize measurement units</p>
+          </div>
+          <div class="action-body">
+            <div class="form-row">
+              <label for="unitStandard">Target standard</label>
+              <select id="unitStandard" aria-label="Unit standardization standard">
+                <option value="metric">Metric system</option>
+                <option value="imperial">Imperial system</option>
+                <option value="custom">Custom mappings</option>
+              </select>
+            </div>
+            <div class="hint">Convert temperature, pressure, and depth units to consistent standards.</div>
+          </div>
+        </div>
+
+        <!-- Sensor Reliability Action -->
+        <div class="action-card" data-action="sensor">
+          <div class="action-head">
+            <label class="switch">
+              <input type="checkbox" id="toggleSensorAction" checked>
+              <span class="slider"></span>
+            </label>
+            <h4>Address sensor issues</h4>
+            <p>Flag or filter data from unreliable sensors</p>
+          </div>
+          <div class="action-body">
+            <div class="form-row">
+              <label for="sensorAction">Action type</label>
+              <select id="sensorAction" aria-label="Sensor reliability action">
+                <option value="flag">Flag unreliable data</option>
+                <option value="filter">Filter out bad sensors</option>
+                <option value="correct">Apply corrections</option>
+              </select>
+            </div>
+            <div class="hint">Handle data quality issues from sensor drift, failures, or calibration problems.</div>
+          </div>
+        </div>
+
+      </div>
+
+    </section>
+
+    <!-- Preview / Apply -->
+    <section class="preview-section hidden" id="previewAnomaliesSection">
+      <div class="section-header">
+        <h3>Preview anomaly actions</h3>
+        <p>Review the impact of selected actions before applying</p>
+      </div>
+
+      <div class="kpi-compare">
+        <div class="kpi-col">
+          <div class="kpi-head">Before</div>
+          <div class="kpi-row"><span class="kpi-label">Total Rows</span><span id="prevTotalRows">-</span></div>
+          <div class="kpi-row"><span class="kpi-label">Outliers</span><span id="prevOutliers">-</span></div>
+          <div class="kpi-row"><span class="kpi-label">Unit Issues</span><span id="prevUnitIssues">-</span></div>
+          <div class="kpi-row"><span class="kpi-label">Sensor Issues</span><span id="prevSensorIssues">-</span></div>
+        </div>
+        <div class="kpi-col arrow">→</div>
+        <div class="kpi-col">
+          <div class="kpi-head">After (preview)</div>
+          <div class="kpi-row"><span class="kpi-label">Total Rows</span><span id="afterTotalRows">-</span></div>
+          <div class="kpi-row"><span class="kpi-label">Outliers</span><span id="afterOutliers">-</span></div>
+          <div class="kpi-row"><span class="kpi-label">Unit Issues</span><span id="afterUnitIssues">-</span></div>
+          <div class="kpi-row"><span class="kpi-label">Sensor Issues</span><span id="afterSensorIssues">-</span></div>
+        </div>
+      </div>
+
+      <div class="log-section">
+        <h4>Action summary</h4>
+        <ul id="anomalyChangeLog" class="tiny-list"></ul>
+      </div>
+
+      <div class="preview-footer">
+        <button class="secondary-btn" id="btnBackToAnomalyActions">
+          <span>Back to actions</span>
+          <div class="btn-icon">↑</div>
+        </button>
+        <button class="primary-btn" id="btnApplyAnomalies">
+          <span>Apply & Continue to Export</span>
+          <div class="btn-icon">→</div>
+        </button>
+      </div>
     </section>
 
     <!-- Actions -->
@@ -147,7 +461,7 @@
         <span>← Back to Cleansing</span>
       </button>
       <button class="primary-btn" id="btnExport" onclick="window.location.href='/export'">
-        <span>Continue to Export</span>
+        <span>Apply Action & Continue to Export</span>
         <div class="btn-icon">→</div>
       </button>
     </section>

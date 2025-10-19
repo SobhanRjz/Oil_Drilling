@@ -66,7 +66,6 @@ def _sample_df() -> pd.DataFrame:
         "well_id": [1, 1, 2, 3, 4],
         "pressure_psi": [100, 100, 120, np.nan, 90],
         "depth": [10.0, 10.0, 11.5, 12.0, np.nan],
-        "note": ["ok", "ok", None, "OK", "ok"]
     })
 
 def _get_df(dataset_id: Optional[str]) -> pd.DataFrame:

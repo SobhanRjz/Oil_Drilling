@@ -201,15 +201,16 @@
 
         // Populate Unit Standardization section with fake data
         el('kpiUnits').textContent = nf(3);
-        el('kpiConversions').textContent = nf(2);
+        el('kpiConversions').textContent = nf(3);
         el('unitPills').innerHTML = [
           pill('Temperature units mixed (C/F)', 'warn'),
           pill('Pressure units inconsistent', 'warn'),
-          pill('Depth measurements varied', 'info')
+          pill('Depth measurements varied', 'warn')
         ].join('');
         el('conversionPills').innerHTML = [
           pill('Convert all temps to Celsius', 'info'),
-          pill('Standardize pressure to PSI', 'info')
+          pill('Standardize pressure to PSI', 'info'),
+          pill('Convert depth from feet to meters', 'info')
         ].join('');
         el('unitAnalysisTable').innerHTML = toTable([
           {column: 'Temperature', unit_variations: 'Celsius, Fahrenheit', recommended: 'Celsius'},
@@ -223,9 +224,6 @@
         el('sensorPills').innerHTML = [
           pill('15 sensors active', 'success'),
           pill('98.2% uptime', 'success'),
-          pill('Temperature sensor #1', 'info'),
-          pill('Pressure sensor #2', 'info'),
-          pill('Depth sensor #3', 'info')
         ].join('');
         el('sensorIssuePills').innerHTML = [
           pill('Temp sensor #1: Drift detected', 'warn'),

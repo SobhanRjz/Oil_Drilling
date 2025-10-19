@@ -641,7 +641,16 @@ def summary(dataset_id: Optional[str] = Query(default=None)):
             "per_column": iforest_per_column,
         },
         "columns": {
-            "dtypes": {c: str(t) for c, t in df.dtypes.items()},
+            "dtypes": {
+                c: (
+                    "text"
+                    if str(t) == "object"
+                    else "numeric"
+                    if str(t) in {"float64", "float32", "int64", "int32", "float", "int"}
+                    else str(t)
+                )
+                for c, t in df.dtypes.items()
+            },
             "constants": constants,
         },
     }

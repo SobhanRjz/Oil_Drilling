@@ -56,8 +56,6 @@
     const distributionSection = document.getElementById('distributionSection');
     const missingSection = document.getElementById('missingSection');
     const insightsSection = document.getElementById('insightsSection');
-    const quickActionSection = document.querySelector('main > section.quick-action.revealed');
-    const showMoreBtn = document.getElementById('showMoreBtn');
     
     console.log('Show More button clicked');
     console.log('Sections found:', {
@@ -67,7 +65,7 @@
       insightsSection: !!insightsSection
     });
     
-    showMoreBtn.style.display = 'none';
+    // Button stays visible, just reveal the content
     
     // Show charts section
     chartsSection.classList.remove('hidden');

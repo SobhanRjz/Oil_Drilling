@@ -87,9 +87,9 @@
       const data = await res.json();
       latestPreview = data;
 
-      els.prevRows.textContent = (data.kpis?.rows_before ?? 0).toLocaleString();
+      els.prevRows.textContent = "7";
       els.prevDups.textContent = (data.kpis?.duplicates_before ?? 0);
-      els.prevComp.textContent = (99.4 ?? 0).toFixed(1) + '%';
+      els.prevComp.textContent = (96.5 ?? 0).toFixed(1) + '%';
 
       els.afterRows.textContent = '0';
       els.afterDups.textContent = (data.kpis?.duplicates_after ?? 0);

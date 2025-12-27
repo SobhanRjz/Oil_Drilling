@@ -1,0 +1,36 @@
+
+name: cleaningdata-prod
+
+services:
+  backend:
+    build:
+      context: ../..
+      dockerfile: infra/docker/Dockerfile
+      target: production
+    container_name: drilling_dq_backend
+    ports:
+      - "127.0.0.1:40002:8000"  # Bind to localhost only for security
+    volumes:
+      # Only mount data directory for persistence
+      - drilling_dq_data:/app/data
+    environment:
+      - ENVIRONMENT=production
+      - LOG_LEVEL=info
+    restart: always
+    networks:
+      - drilling_dq_network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://127.0.0.1:8000/login"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+volumes:
+  drilling_dq_data:
+    driver: local
+
+networks:
+  drilling_dq_network:
+    driver: bridge
+

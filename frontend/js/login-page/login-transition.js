@@ -1,4 +1,4 @@
-// Smooth fade-out on successful sign-in, then navigate to `/`
+// Smooth fade-out on successful sign-in, then navigate to `/upload`
 document.addEventListener('DOMContentLoaded', () => {
     const form = document.getElementById('login-form');
     if (!form || form.dataset.bound === '1') return;  // avoid double-binding
@@ -122,9 +122,9 @@ document.addEventListener('DOMContentLoaded', () => {
           return toast(data.message || 'Login failed');
         }
   
-        // success → fade out whole page, then go to `/`
+        // success → fade out whole page, then go to `/upload`
         const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-        const go = () => (window.location.href = '/');
+        const go = () => (window.location.href = '/upload');
   
         if (!reduce && page) {
           page.classList.add('is-leaving');

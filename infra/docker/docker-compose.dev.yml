@@ -1,0 +1,32 @@
+
+
+name: cleaningdata-dev
+
+services:
+  backend:
+    build:
+      context: ../..
+      dockerfile: infra/docker/Dockerfile
+      target: development
+    container_name: drilling_dq_dev
+    ports:
+      - "127.0.0.1:40002:8000"
+    volumes:
+      # Mount source code for hot-reload
+      - ../../backend:/app/backend
+      - ../../frontend:/app/frontend
+      - ../../data:/app/data
+      # Exclude Python cache
+      - /app/backend/__pycache__
+    environment:
+      - ENVIRONMENT=development
+      - LOG_LEVEL=debug
+    restart: unless-stopped
+    networks:
+      - drilling_dq_network
+    command: uvicorn backend.main:app --host 0.0.0.0 --port 8000 --reload
+
+networks:
+  drilling_dq_network:
+    driver: bridge
+

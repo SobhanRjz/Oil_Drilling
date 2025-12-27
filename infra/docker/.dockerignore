@@ -1,0 +1,53 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+*.egg-info/
+dist/
+build/
+*.egg
+.venv/
+venv/
+ENV/
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.cursor/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Git
+.git/
+.gitignore
+
+# Docker
+Dockerfile
+docker-compose*.yml
+.dockerignore
+
+# Build artifacts
+*.exe
+*.spec
+*.rar
+*.zip
+Extra/
+
+# Logs
+*.log
+drilling_dq_log.txt
+
+# Batch files
+*.bat
+
+# Project specific
+launcher.py
+build_nuitka.py
+

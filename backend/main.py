@@ -102,8 +102,26 @@ async def api_logout():
     return resp
 
 @app.get("/", response_class=HTMLResponse)
+async def landing_page():
+    # Public landing page - no auth required
+    landing_path = FRONTEND_DIR / "landing.html"
+    if not landing_path.exists():
+        raise HTTPException(status_code=404, detail="landing.html not found in frontend/")
+    return HTMLResponse(landing_path.read_text(encoding="utf-8"))
+
+@app.get("/upload", response_class=HTMLResponse)
+async def upload_page(request: FastAPIRequest):
+    # Require auth before showing upload page
+    _ = require_auth(request)
+    index_path = FRONTEND_DIR / "index.html"
+    if not index_path.exists():
+        raise HTTPException(status_code=404, detail="index.html not found in frontend/")
+    return HTMLResponse(index_path.read_text(encoding="utf-8"))
+
+@app.get("/app", response_class=HTMLResponse)
+@app.get("/dashboard", response_class=HTMLResponse)
 async def index(request: FastAPIRequest):
-    # Require auth before showing app
+    # Require auth before showing app (redirect to upload)
     _ = require_auth(request)
     index_path = FRONTEND_DIR / "index.html"
     if not index_path.exists():

@@ -5,3 +5,4 @@ pandas==2.2.2
 numpy==1.26.4
 pyinstaller==6.15.0
 scikit-learn==1.5.1
+itsdangerous==2.2.0

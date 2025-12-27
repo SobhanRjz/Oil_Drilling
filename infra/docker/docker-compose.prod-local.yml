@@ -1,0 +1,55 @@
+
+name: cleaningdata-prod-local
+
+# Production-local: extends prod config but with overrides for local testing
+# This allows testing the production setup locally without full deployment
+
+services:
+  backend:
+    build:
+      context: ../..
+      dockerfile: infra/docker/Dockerfile
+      target: production
+    container_name: drilling_dq_backend_local
+    ports:
+      - "127.0.0.1:40002:8000"
+    volumes:
+      # Use bind mount for easier local testing
+      - ../../data:/app/data
+    environment:
+      - ENVIRONMENT=production
+      - LOG_LEVEL=info
+    restart: unless-stopped
+    networks:
+      - drilling_dq_network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://127.0.0.1:8000/login"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  nginx:
+    image: nginx:alpine
+    container_name: drilling_dq_nginx_local
+    ports:
+      - "8080:80"  # Use 8080 for local to avoid conflicts
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/conf.d:/etc/nginx/conf.d:ro
+      - ./nginx/logs:/var/log/nginx
+    depends_on:
+      - backend
+    restart: unless-stopped
+    networks:
+      - drilling_dq_network
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://127.0.0.1/login"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+networks:
+  drilling_dq_network:
+    driver: bridge
+

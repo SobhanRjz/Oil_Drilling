@@ -74,6 +74,15 @@ async def login_page():
         raise HTTPException(status_code=404, detail="Missing login.html in frontend/")
     return HTMLResponse(page.read_text(encoding="utf-8"))
 
+@app.head("/login")
+async def login_page_head():
+    """HEAD handler for login page - returns same headers as GET but no body"""
+    page = FRONTEND_DIR / "login.html"
+    if not page.exists():
+        raise HTTPException(status_code=404, detail="Missing login.html in frontend/")
+    content = page.read_text(encoding="utf-8")
+    return HTMLResponse(content="", headers={"Content-Length": str(len(content.encode('utf-8')))})
+
 @app.post("/api/login")
 async def api_login(payload: dict):
     email = (payload.get("email") or "").strip()
@@ -108,6 +117,15 @@ async def landing_page():
     if not landing_path.exists():
         raise HTTPException(status_code=404, detail="landing.html not found in frontend/")
     return HTMLResponse(landing_path.read_text(encoding="utf-8"))
+
+@app.head("/")
+async def landing_page_head():
+    """HEAD handler for landing page - returns same headers as GET but no body"""
+    landing_path = FRONTEND_DIR / "landing.html"
+    if not landing_path.exists():
+        raise HTTPException(status_code=404, detail="landing.html not found in frontend/")
+    content = landing_path.read_text(encoding="utf-8")
+    return HTMLResponse(content="", headers={"Content-Length": str(len(content.encode('utf-8')))})
 
 @app.get("/upload", response_class=HTMLResponse)
 async def upload_page(request: FastAPIRequest):
@@ -144,6 +162,17 @@ def favicon():
         return FileResponse(str(ico), media_type="image/x-icon")
     raise HTTPException(status_code=404, detail="favicon not found")
 
+@app.head("/favicon.ico")
+def favicon_head():
+    """HEAD handler for favicon - returns same headers as GET but no body"""
+    ico = FRONTEND_DIR / "favicon.ico"
+    if ico.exists():
+        return Response(headers={
+            "Content-Type": "image/x-icon",
+            "Content-Length": str(ico.stat().st_size)
+        })
+    raise HTTPException(status_code=404, detail="favicon not found")
+
 @app.post("/api/upload")
 async def upload(file: UploadFile = File(...)):
     try:
@@ -157,6 +186,18 @@ async def upload(file: UploadFile = File(...)):
 def sample():
     p = ROOT / "data" / "sample.csv"
     return FileResponse(str(p), media_type="text/csv", filename="sample.csv")
+
+@app.head("/api/sample")
+def sample_head():
+    """HEAD handler for sample CSV - returns same headers as GET but no body"""
+    p = ROOT / "data" / "sample.csv"
+    if p.exists():
+        return Response(headers={
+            "Content-Type": "text/csv",
+            "Content-Disposition": 'attachment; filename="sample.csv"',
+            "Content-Length": str(p.stat().st_size)
+        })
+    raise HTTPException(status_code=404, detail="Sample file not found")
 
 @app.get("/api/profile")
 def api_profile(dataset_id: str):
